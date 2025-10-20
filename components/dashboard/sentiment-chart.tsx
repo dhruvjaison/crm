@@ -58,8 +58,8 @@ export function SentimentChart({ tenantId }: SentimentChartProps) {
               fill="#8884d8"
               dataKey="value"
             >
-              {(chartData || []).map((entry: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+              {(chartData || []).map((entry: { name: keyof typeof COLORS; value: number }, index: number) => (
+                <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
               ))}
             </Pie>
             <Tooltip 

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Phone, Users, Briefcase, TrendingUp, DollarSign } from 'lucide-react'
+import { Phone, Users, Briefcase, DollarSign } from 'lucide-react'
 
 interface StatsCardsProps {
   tenantId: string
@@ -11,14 +11,12 @@ export async function StatsCards({ tenantId }: StatsCardsProps) {
   const [
     totalCalls,
     totalContacts,
-    totalDeals,
     openDeals,
     callsToday,
     totalCallCost,
   ] = await Promise.all([
     prisma.call.count({ where: { tenantId } }),
     prisma.contact.count({ where: { tenantId } }),
-    prisma.deal.count({ where: { tenantId } }),
     prisma.deal.count({ where: { tenantId, status: 'OPEN' } }),
     prisma.call.count({
       where: {

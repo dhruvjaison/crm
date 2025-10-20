@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { prisma } from '@/lib/db'
-import { Settings as SettingsIcon, User, Building, Palette } from 'lucide-react'
+import { User, Building, Palette } from 'lucide-react'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -130,7 +130,7 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Branding customization features are being developed. You'll be able to upload your logo and customize colors.
+            Branding customization features are being developed. You&apos;ll be able to upload your logo and customize colors.
           </p>
         </CardContent>
       </Card>

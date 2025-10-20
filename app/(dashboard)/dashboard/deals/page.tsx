@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, DollarSign, TrendingUp } from 'lucide-react'
+import { Plus, DollarSign } from 'lucide-react'
 
 export default async function DealsPage() {
   const session = await auth()

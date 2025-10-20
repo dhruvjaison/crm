@@ -4,8 +4,7 @@ import { prisma } from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Phone, PhoneIncoming, PhoneOutgoing, Clock, DollarSign, ArrowLeft, MessageSquare, TrendingUp, AlertCircle } from 'lucide-react'
+import { PhoneIncoming, PhoneOutgoing, Clock, DollarSign, ArrowLeft, MessageSquare, TrendingUp, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 
@@ -186,7 +185,7 @@ export default async function CallDetailPage({ params }: { params: { id: string 
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {keyMoments.map((moment: any, index: number) => (
+              {keyMoments.map((moment: { timestamp: string; label: string; description: string }, index: number) => (
                 <div key={index} className="flex items-start gap-3">
                   <Badge variant="outline" className="mt-0.5">{moment.timestamp}</Badge>
                   <div>

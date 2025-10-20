@@ -23,7 +23,7 @@ export default async function EmailPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Email automation features are being developed. You'll be able to create templates, set up automated sequences, and track email performance.
+            Email automation features are being developed. You&apos;ll be able to create templates, set up automated sequences, and track email performance.
           </p>
         </CardContent>
       </Card>

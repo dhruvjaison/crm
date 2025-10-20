@@ -23,7 +23,7 @@ export default async function TasksPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Task management features are being developed. You'll be able to create, assign, and track tasks here.
+            Task management features are being developed. You&apos;ll be able to create, assign, and track tasks here.
           </p>
         </CardContent>
       </Card>

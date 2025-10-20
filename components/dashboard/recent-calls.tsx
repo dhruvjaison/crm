@@ -25,7 +25,7 @@ export async function RecentCalls({ tenantId }: RecentCallsProps) {
   const getSentimentBadge = (sentiment: string | null) => {
     if (!sentiment) return null
     
-    const variants: Record<string, any> = {
+    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive'; className: string }> = {
       POSITIVE: { variant: 'default' as const, className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
       NEUTRAL: { variant: 'secondary' as const, className: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
       NEGATIVE: { variant: 'destructive' as const, className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },

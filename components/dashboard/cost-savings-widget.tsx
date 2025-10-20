@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { calculateCostSavings } from '@/lib/mock-data'
-import { TrendingDown, DollarSign } from 'lucide-react'
+import { TrendingDown } from 'lucide-react'
 
 interface CostSavingsWidgetProps {
   tenantId: string

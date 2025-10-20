@@ -23,7 +23,7 @@ export default async function AnalyticsPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Advanced analytics dashboards are being developed. You'll get detailed insights on agent performance, customer behavior, and revenue forecasting.
+            Advanced analytics dashboards are being developed. You&apos;ll get detailed insights on agent performance, customer behavior, and revenue forecasting.
           </p>
         </CardContent>
       </Card>
