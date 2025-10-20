@@ -8,15 +8,17 @@ import { PhoneIncoming, PhoneOutgoing, Clock, DollarSign, ArrowLeft, MessageSqua
 import Link from 'next/link'
 import { format } from 'date-fns'
 
-export default async function CallDetailPage({ params }: { params: { id: string } }) {
+export default async function CallDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
 
   if (!session) {
     redirect('/login')
   }
 
+  const { id } = await params
+
   const call = await prisma.call.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       contact: true,
     },
