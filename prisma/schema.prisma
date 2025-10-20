@@ -1,0 +1,497 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== MULTI-TENANCY & USERS ====================
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // For subdomain routing
+  domain    String?  @unique // Custom domain support
+  logo      String?
+  primaryColor String? // Brand colors
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Plan & Usage
+  planTier  String   @default("starter") // starter, professional, enterprise
+  maxUsers  Int      @default(5)
+  maxContacts Int?
+  
+  // Settings
+  settings  Json?    // Flexible JSON for tenant-specific settings
+  
+  // Relations
+  users     User[]
+  contacts  Contact[]
+  deals     Deal[]
+  calls     Call[]
+  tasks     Task[]
+  emailCampaigns EmailCampaign[]
+  emailTemplates EmailTemplate[]
+  customFields CustomField[]
+  activities Activity[]
+  pipelineStages PipelineStage[]
+  
+  @@index([slug])
+}
+
+enum UserRole {
+  SUPER_ADMIN  // Your team - manages all clients
+  CLIENT_ADMIN // Client's admin - manages their organization
+  CLIENT_USER  // Client's employee - limited access
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String    // Hashed with bcrypt
+  role          UserRole
+  image         String?
+  phone         String?
+  
+  // Multi-tenant
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Security
+  emailVerified DateTime?
+  lastLoginAt   DateTime?
+  isActive      Boolean   @default(true)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  assignedTasks Task[]    @relation("AssignedTasks")
+  createdTasks  Task[]    @relation("CreatedTasks")
+  activities    Activity[]
+  assignedDeals Deal[]    @relation("DealOwner")
+  
+  @@index([tenantId])
+  @@index([email])
+}
+
+// ==================== CONTACTS & LEADS ====================
+
+enum ContactStatus {
+  LEAD
+  QUALIFIED
+  CUSTOMER
+  INACTIVE
+}
+
+model Contact {
+  id            String        @id @default(cuid())
+  
+  // Basic Info
+  firstName     String
+  lastName      String
+  email         String?
+  phone         String?
+  company       String?
+  jobTitle      String?
+  
+  // Address
+  street        String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?
+  
+  // Status & Scoring
+  status        ContactStatus @default(LEAD)
+  leadScore     Int           @default(0)
+  tags          String[]      // Array of tags
+  
+  // Multi-tenant
+  tenantId      String
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Custom Fields (JSON for flexibility)
+  customFields  Json?
+  
+  // Metadata
+  source        String?       // Where did they come from
+  notes         String?       @db.Text
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  calls         Call[]
+  deals         Deal[]
+  tasks         Task[]
+  activities    Activity[]
+  
+  @@index([tenantId])
+  @@index([email])
+  @@index([status])
+}
+
+// ==================== CUSTOM FIELDS ====================
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  DATE
+  DROPDOWN
+  MULTI_SELECT
+  PHONE
+  EMAIL
+  URL
+  CHECKBOX
+  CURRENCY
+}
+
+model CustomField {
+  id          String          @id @default(cuid())
+  name        String
+  fieldType   CustomFieldType
+  options     Json?           // For dropdown/multi-select
+  isRequired  Boolean         @default(false)
+  
+  // Which entity this field belongs to
+  entityType  String          // "contact", "deal", "call"
+  
+  // Multi-tenant
+  tenantId    String
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  @@index([tenantId])
+  @@index([entityType])
+}
+
+// ==================== DEALS & PIPELINE ====================
+
+model PipelineStage {
+  id          String   @id @default(cuid())
+  name        String
+  order       Int
+  probability Int      @default(0) // Win probability %
+  color       String?
+  
+  // Multi-tenant
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  deals       Deal[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([tenantId, order])
+  @@index([tenantId])
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+model Deal {
+  id            String         @id @default(cuid())
+  title         String
+  value         Float?
+  currency      String         @default("USD")
+  status        DealStatus     @default(OPEN)
+  
+  // Pipeline
+  stageId       String
+  stage         PipelineStage  @relation(fields: [stageId], references: [id])
+  
+  // Contact
+  contactId     String
+  contact       Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  // Owner
+  ownerId       String?
+  owner         User?          @relation("DealOwner", fields: [ownerId], references: [id])
+  
+  // Dates
+  expectedCloseDate DateTime?
+  closedAt      DateTime?
+  
+  // Multi-tenant
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  notes         String?        @db.Text
+  customFields  Json?
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  // Relations
+  activities    Activity[]
+  tasks         Task[]
+  
+  @@index([tenantId])
+  @@index([contactId])
+  @@index([stageId])
+  @@index([status])
+}
+
+// ==================== CALLS & RETELL AI DATA ====================
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CallStatus {
+  COMPLETED
+  MISSED
+  FAILED
+  IN_PROGRESS
+}
+
+enum SentimentType {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model Call {
+  id              String        @id @default(cuid())
+  
+  // Basic Info
+  direction       CallDirection
+  status          CallStatus
+  duration        Int?          // Duration in seconds
+  
+  // Contact
+  contactId       String?
+  contact         Contact?      @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  phoneNumber     String
+  
+  // Retell AI Data
+  retellCallId    String?       @unique // Retell AI's call ID
+  agentId         String?       // Which Retell AI agent handled this
+  
+  // Transcript & Analysis
+  transcript      String?       @db.Text
+  summary         String?       @db.Text
+  sentiment       SentimentType?
+  sentimentScore  Float?        // -1 to 1
+  
+  // Key Moments (JSON array of {timestamp, label, description})
+  keyMoments      Json?
+  
+  // Intent & Topics
+  detectedIntent  String?
+  topics          String[]
+  keywords        String[]
+  
+  // Follow-up
+  followUpNeeded  Boolean       @default(false)
+  followUpNotes   String?       @db.Text
+  
+  // Cost Tracking
+  costPerMinute   Float?        @default(0.05)
+  totalCost       Float?
+  
+  // Multi-tenant
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  startedAt       DateTime?
+  endedAt         DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  activities      Activity[]
+  
+  @@index([tenantId])
+  @@index([contactId])
+  @@index([status])
+  @@index([sentiment])
+  @@index([createdAt])
+}
+
+// ==================== TASKS ====================
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?      @db.Text
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(TODO)
+  
+  // Assignment
+  assignedToId String?
+  assignedTo   User?       @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  
+  createdById  String?
+  createdBy    User?       @relation("CreatedTasks", fields: [createdById], references: [id])
+  
+  // Relations
+  contactId    String?
+  contact      Contact?    @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  dealId       String?
+  deal         Deal?       @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  
+  // Dates
+  dueDate      DateTime?
+  completedAt  DateTime?
+  
+  // Multi-tenant
+  tenantId     String
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  @@index([tenantId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// ==================== EMAIL AUTOMATION ====================
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  body        String   @db.Text // HTML content
+  
+  // Variables supported (e.g., {{firstName}}, {{companyName}})
+  variables   String[]
+  
+  // Multi-tenant
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  campaigns   EmailCampaign[]
+  
+  @@index([tenantId])
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+model EmailCampaign {
+  id            String         @id @default(cuid())
+  name          String
+  status        CampaignStatus @default(DRAFT)
+  
+  // Template
+  templateId    String?
+  template      EmailTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  
+  // Trigger
+  triggerType   String?        // "manual", "after_call", "stage_change", "scheduled"
+  triggerConfig Json?
+  
+  // Schedule
+  scheduledAt   DateTime?
+  
+  // Metrics
+  sentCount     Int            @default(0)
+  openCount     Int            @default(0)
+  clickCount    Int            @default(0)
+  
+  // Multi-tenant
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ==================== ACTIVITY LOG ====================
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  TASK_CREATED
+  TASK_COMPLETED
+  DEAL_CREATED
+  DEAL_STAGE_CHANGED
+  DEAL_WON
+  DEAL_LOST
+  CONTACT_CREATED
+  CONTACT_UPDATED
+  USER_LOGIN
+  DATA_EXPORT
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  type        ActivityType
+  description String       @db.Text
+  metadata    Json?        // Additional data about the activity
+  
+  // Who performed the action
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
+  
+  // Related entities
+  contactId   String?
+  contact     Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  dealId      String?
+  deal        Deal?        @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  
+  callId      String?
+  call        Call?        @relation(fields: [callId], references: [id], onDelete: Cascade)
+  
+  // Multi-tenant
+  tenantId    String
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime     @default(now())
+  
+  @@index([tenantId])
+  @@index([userId])
+  @@index([contactId])
+  @@index([dealId])
+  @@index([type])
+  @@index([createdAt])
+}
