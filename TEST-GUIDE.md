@@ -1,6 +1,6 @@
 # 🚀 Testing Guide - Get Your CRM Running in 10 Minutes
 
-Follow these steps exactly to test your CRM locally and deploy to Vercel.
+Follow these steps exactly to test your CRM with Arnie AI locally and deploy to Vercel.
 
 ## Prerequisites
 

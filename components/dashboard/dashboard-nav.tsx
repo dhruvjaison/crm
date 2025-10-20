@@ -92,7 +92,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
             CRM Pro
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Powered by Retell AI
+            Powered by Arnie AI
           </p>
         </div>
 

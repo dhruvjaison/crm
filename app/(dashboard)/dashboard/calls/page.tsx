@@ -125,7 +125,7 @@ export default async function CallsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Call Intelligence</h1>
         <p className="text-muted-foreground">
-          AI-powered call analysis and insights from Retell AI
+          AI-powered call analysis and insights from Arnie AI
         </p>
       </div>
 

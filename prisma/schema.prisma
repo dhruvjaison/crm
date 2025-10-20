@@ -246,7 +246,7 @@ model Deal {
   @@index([status])
 }
 
-// ==================== CALLS & RETELL AI DATA ====================
+// ==================== CALLS & ARNIE AI DATA ====================
 
 enum CallDirection {
   INBOUND
@@ -280,9 +280,9 @@ model Call {
   
   phoneNumber     String
   
-  // Retell AI Data
-  retellCallId    String?       @unique // Retell AI's call ID
-  agentId         String?       // Which Retell AI agent handled this
+  // Arnie AI Data
+  retellCallId    String?       @unique // Arnie AI's call ID
+  agentId         String?       // Which Arnie AI agent handled this
   
   // Transcript & Analysis
   transcript      String?       @db.Text

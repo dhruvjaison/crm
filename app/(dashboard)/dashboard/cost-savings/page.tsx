@@ -37,7 +37,7 @@ export default async function CostSavingsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Cost Savings Calculator</h1>
         <p className="text-muted-foreground">
-          ROI analysis: Retell AI vs Traditional Call Centers
+          ROI analysis: Arnie AI vs Traditional Call Centers
         </p>
       </div>
 
@@ -113,7 +113,7 @@ export default async function CostSavingsPage() {
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-cyan-600 dark:text-cyan-400">
-                Retell AI Solution
+                Arnie AI Solution
               </h3>
               <div className="space-y-2">
                 <div className="flex justify-between py-2 border-b">

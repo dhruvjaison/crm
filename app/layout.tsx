@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Enterprise CRM - Powered by Retell AI",
+  title: "Enterprise CRM - Powered by Arnie AI",
   description: "Modern CRM with AI-powered call intelligence and analytics",
 };
 

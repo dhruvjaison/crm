@@ -164,7 +164,7 @@ export function generateRandomCall(contactId: string, tenantId: string) {
     duration: durationSeconds,
     contactId,
     phoneNumber: `+1${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
-    retellCallId: `retell_${Math.random().toString(36).substring(7)}`,
+    retellCallId: `arnie_${Math.random().toString(36).substring(7)}`,
     agentId: `agent_${Math.floor(Math.random() * 5) + 1}`,
     transcript: mockData.transcript,
     summary: mockData.summary,
@@ -239,7 +239,7 @@ export function generateRandomTask(contactId: string, tenantId: string, assigned
 export function calculateCostSavings(callCount: number, avgDurationSeconds: number) {
   const avgDurationMinutes = avgDurationSeconds / 60
   
-  // Retell AI costs
+  // Arnie AI costs
   const retellCostPerMinute = 0.05
   const retellTotalCost = callCount * avgDurationMinutes * retellCostPerMinute
   

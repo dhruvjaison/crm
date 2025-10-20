@@ -1,6 +1,6 @@
-# Enterprise CRM with Retell AI Integration
+# Enterprise CRM with Arnie AI Integration
 
-A modern, HIPAA-compliant CRM platform with AI-powered call intelligence, designed for managed service providers offering Retell AI voice agents to their clients.
+A modern, HIPAA-compliant CRM platform with AI-powered call intelligence, designed for managed service providers offering Arnie AI voice agents to their clients.
 
 ## 🚀 Features
 
@@ -9,7 +9,7 @@ A modern, HIPAA-compliant CRM platform with AI-powered call intelligence, design
 - Custom branding per client
 - Three-tier role system (Super Admin, Client Admin, Client User)
 
-### Call Intelligence (Retell AI Integration)
+### Call Intelligence (Arnie AI Integration)
 - Full call transcripts with AI analysis
 - Sentiment analysis and scoring
 - Key moment detection
@@ -158,7 +158,7 @@ Key models:
 - **Tenant**: Multi-tenant isolation
 - **User**: Authentication with RBAC
 - **Contact**: Lead and customer management
-- **Call**: Retell AI call data with transcripts
+- **Call**: Arnie AI call data with transcripts
 - **Deal**: Sales pipeline management
 - **Task**: Activity tracking
 - **EmailCampaign**: Automation
@@ -196,7 +196,7 @@ Add these in your Vercel project settings:
 - `NEXTAUTH_SECRET`
 - `ENCRYPTION_KEY`
 
-## 📊 Mock Retell AI Data
+## 📊 Mock Arnie AI Data
 
 The system includes a comprehensive mock data generator that creates:
 - Realistic call transcripts (healthcare, legal, real estate scenarios)
@@ -237,7 +237,7 @@ This CRM is perfect for:
 - **Healthcare Providers**: HIPAA-compliant patient communication
 - **Legal Firms**: Client intake and consultation scheduling
 - **Real Estate Agencies**: Lead qualification and follow-up
-- **Any Service Business**: Using Retell AI for customer communication
+- **Any Service Business**: Using Arnie AI for customer communication
 
 ## 💼 Selling Points
 
