@@ -39,7 +39,7 @@ export const authConfig = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
-        session.user.role = token.role as string
+        session.user.role = token.role as 'SUPER_ADMIN' | 'CLIENT_ADMIN' | 'CLIENT_USER'
         session.user.tenantId = token.tenantId as string
         session.user.tenantSlug = token.tenantSlug as string
       }
