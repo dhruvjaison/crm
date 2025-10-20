@@ -13,7 +13,8 @@ import {
   CheckSquare,
   Settings,
   Briefcase,
-  Building2
+  Building2,
+  Plug
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -62,6 +63,11 @@ const navItems = [
     title: 'Tasks',
     href: '/dashboard/tasks',
     icon: CheckSquare,
+  },
+  {
+    title: 'Integrations',
+    href: '/dashboard/integrations',
+    icon: Plug,
   },
   {
     title: 'Settings',
