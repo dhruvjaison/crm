@@ -98,6 +98,8 @@ model User {
   assignedDeals Deal[]    @relation("DealOwner")
   apiKeys       ApiKey[]
   securityEvents SecurityEvent[]
+  calendarEvents CalendarEvent[]
+  sharedCalendars SharedCalendarMember[]
   
   @@index([tenantId])
   @@index([email])
@@ -154,6 +156,7 @@ model Contact {
   deals         Deal[]
   tasks         Task[]
   activities    Activity[]
+  calendarEvents CalendarEvent[]
   
   @@index([tenantId])
   @@index([email])
@@ -261,6 +264,7 @@ model Deal {
   // Relations
   activities    Activity[]
   tasks         Task[]
+  calendarEvents CalendarEvent[]
   
   @@index([tenantId])
   @@index([contactId])
@@ -557,4 +561,120 @@ model SecurityEvent {
   @@index([tenantId])
   @@index([type])
   @@index([createdAt])
+}
+
+// ==================== CALENDAR & SCHEDULING ====================
+
+enum EventType {
+  MEETING
+  CALL
+  DEMO
+  FOLLOWUP
+  PERSONAL
+  OTHER
+}
+
+enum EventStatus {
+  CONFIRMED
+  TENTATIVE
+  CANCELLED
+}
+
+model CalendarEvent {
+  id              String      @id @default(cuid())
+  
+  // Event details
+  title           String
+  description     String?     @db.Text
+  location        String?
+  meetingLink     String?     // Zoom, Google Meet, etc.
+  
+  // Timing
+  startTime       DateTime
+  endTime         DateTime
+  allDay          Boolean     @default(false)
+  timezone        String      @default("America/New_York")
+  
+  // Categorization
+  type            EventType   @default(MEETING)
+  status          EventStatus @default(CONFIRMED)
+  
+  // Google Calendar sync
+  googleEventId   String?     @unique
+  syncedToGoogle  Boolean     @default(false)
+  lastSyncedAt    DateTime?
+  
+  // Relations
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  tenantId        String
+  
+  contactId       String?
+  contact         Contact?    @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  dealId          String?
+  deal            Deal?       @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  
+  // Attendees (JSON array of email addresses)
+  attendees       Json?       // [{email, name, status}]
+  
+  // Reminders (JSON)
+  reminders       Json?       // [{minutes: 15, type: 'email'}]
+  
+  // Metadata
+  isRecurring     Boolean     @default(false)
+  recurringRule   String?     // RRULE format
+  parentEventId   String?     // For recurring events
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([userId])
+  @@index([tenantId])
+  @@index([contactId])
+  @@index([dealId])
+  @@index([startTime])
+  @@index([type])
+  @@index([googleEventId])
+}
+
+// Team shared calendars
+model SharedCalendar {
+  id          String                  @id @default(cuid())
+  name        String
+  description String?                 @db.Text
+  color       String?                 // Hex color for UI
+  
+  tenantId    String
+  
+  // Permissions
+  isPublic    Boolean                 @default(false) // All team members can view
+  
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  
+  members     SharedCalendarMember[]
+  
+  @@index([tenantId])
+}
+
+model SharedCalendarMember {
+  id          String          @id @default(cuid())
+  
+  calendarId  String
+  calendar    SharedCalendar  @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Permissions
+  canEdit     Boolean         @default(false)
+  canDelete   Boolean         @default(false)
+  
+  addedAt     DateTime        @default(now())
+  
+  @@unique([calendarId, userId])
+  @@index([calendarId])
+  @@index([userId])
 }
