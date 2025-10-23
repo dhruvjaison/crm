@@ -63,10 +63,30 @@ model User {
   tenantId      String
   tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   
-  // Security
+  // Security - Basic
   emailVerified DateTime?
   lastLoginAt   DateTime?
   isActive      Boolean   @default(true)
+  
+  // Security - Password Policy
+  passwordChangedAt     DateTime?
+  forcePasswordChange   Boolean   @default(false)
+  failedLoginAttempts   Int       @default(0)
+  accountLockedUntil    DateTime?
+  
+  // Security - Two-Factor Authentication
+  twoFactorSecret       String?   @db.Text
+  twoFactorEnabled      Boolean   @default(false)
+  backupCodes           String[]  @default([])
+  
+  // Security - Session Management
+  lastActivityAt        DateTime?
+  activeSessions        Json?     // Array of session IDs with timestamps
+  
+  // Google Calendar Integration
+  googleAccessToken     String?   @db.Text
+  googleRefreshToken    String?   @db.Text
+  googleCalendarId      String?
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -76,6 +96,8 @@ model User {
   createdTasks  Task[]    @relation("CreatedTasks")
   activities    Activity[]
   assignedDeals Deal[]    @relation("DealOwner")
+  apiKeys       ApiKey[]
+  securityEvents SecurityEvent[]
   
   @@index([tenantId])
   @@index([email])
@@ -492,6 +514,47 @@ model Activity {
   @@index([userId])
   @@index([contactId])
   @@index([dealId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ==================== SECURITY ====================
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String    // Descriptive name like "Retell AI Integration"
+  key         String    @unique // The actual API key (hashed)
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime? // Optional expiration
+  
+  // Relations
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenantId    String
+  
+  @@index([userId])
+  @@index([key])
+  @@index([tenantId])
+}
+
+model SecurityEvent {
+  id          String   @id @default(cuid())
+  type        String   // "login_failed", "password_changed", "2fa_enabled", "account_locked", etc.
+  description String?  @db.Text
+  ipAddress   String?
+  userAgent   String?  @db.Text
+  metadata    Json?    // Additional event data
+  
+  // Relations
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenantId    String
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([tenantId])
   @@index([type])
   @@index([createdAt])
 }

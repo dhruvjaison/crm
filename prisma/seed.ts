@@ -6,11 +6,16 @@ import {
   generateRandomDeal,
   generateRandomTask,
 } from '../lib/mock-data'
+import { generateSecurePassword } from '../lib/password-policy'
 
 const prisma = new PrismaClient()
 
+// Store generated passwords to output at the end
+const generatedCredentials: Array<{ email: string; password: string; role: string }> = []
+
 async function main() {
   console.log('🌱 Starting database seed...')
+  console.log('🔐 Generating secure passwords for all accounts...')
 
   // Create 3 demo tenants
   const tenants = [
@@ -75,8 +80,12 @@ async function main() {
       createdStages.push(stage)
     }
 
-    // Create users for this tenant
-    const hashedPassword = await hash('demo1234', 10)
+    // Create users for this tenant with secure random passwords
+    const adminPassword = generateSecurePassword(16)
+    const userPassword = generateSecurePassword(16)
+    
+    const hashedAdminPassword = await hash(adminPassword, 10)
+    const hashedUserPassword = await hash(userPassword, 10)
 
     const adminUser = await prisma.user.upsert({
       where: { email: `admin@${tenantData.slug}.com` },
@@ -84,10 +93,12 @@ async function main() {
       create: {
         email: `admin@${tenantData.slug}.com`,
         name: `${tenantData.name} Admin`,
-        password: hashedPassword,
+        password: hashedAdminPassword,
         role: UserRole.CLIENT_ADMIN,
         tenantId: tenant.id,
         isActive: true,
+        forcePasswordChange: true, // Force password change on first login
+        passwordChangedAt: new Date(),
       },
     })
 
@@ -97,16 +108,28 @@ async function main() {
       create: {
         email: `user@${tenantData.slug}.com`,
         name: `${tenantData.name} User`,
-        password: hashedPassword,
+        password: hashedUserPassword,
         role: UserRole.CLIENT_USER,
         tenantId: tenant.id,
         isActive: true,
+        forcePasswordChange: true, // Force password change on first login
+        passwordChangedAt: new Date(),
       },
     })
 
+    // Store credentials for output
+    generatedCredentials.push({
+      email: `admin@${tenantData.slug}.com`,
+      password: adminPassword,
+      role: 'Admin',
+    })
+    generatedCredentials.push({
+      email: `user@${tenantData.slug}.com`,
+      password: userPassword,
+      role: 'User',
+    })
+
     console.log(`  ✅ Created users for ${tenantData.name}`)
-    console.log(`     Admin: admin@${tenantData.slug}.com / demo1234`)
-    console.log(`     User: user@${tenantData.slug}.com / demo1234`)
 
     // Create contacts
     console.log(`  👥 Creating contacts...`)
@@ -218,7 +241,8 @@ async function main() {
   }
 
   // Create super admin user (can access all tenants)
-  const superAdminPassword = await hash('superadmin123', 10)
+  const superAdminPlainPassword = generateSecurePassword(16)
+  const superAdminPassword = await hash(superAdminPlainPassword, 10)
   const superAdmin = await prisma.user.upsert({
     where: { email: 'superadmin@crmplatform.com' },
     update: {},
@@ -229,17 +253,37 @@ async function main() {
       role: UserRole.SUPER_ADMIN,
       tenantId: (await prisma.tenant.findFirst())!.id, // Associate with first tenant
       isActive: true,
+      forcePasswordChange: true, // Force password change on first login
+      passwordChangedAt: new Date(),
     },
   })
 
-  console.log(`\n👑 Super Admin created:`)
-  console.log(`   Email: superadmin@crmplatform.com / superadmin123`)
+  // Store super admin credentials
+  generatedCredentials.unshift({
+    email: 'superadmin@crmplatform.com',
+    password: superAdminPlainPassword,
+    role: 'Super Admin',
+  })
+
   console.log(`\n✅ Database seeding completed!`)
-  console.log(`\n📝 Login credentials summary:`)
-  console.log(`   Super Admin: superadmin@crmplatform.com / superadmin123`)
-  console.log(`   ABC Healthcare Admin: admin@abc-healthcare.com / demo1234`)
-  console.log(`   XYZ Legal Admin: admin@xyz-legal.com / demo1234`)
-  console.log(`   123 Real Estate Admin: admin@123-realestate.com / demo1234`)
+  console.log(`\n🔐 ═══════════════════════════════════════════════════════════════`)
+  console.log(`🔐 IMPORTANT: Generated Login Credentials (SAVE THESE!)`)
+  console.log(`🔐 ═══════════════════════════════════════════════════════════════\n`)
+  
+  generatedCredentials.forEach(cred => {
+    console.log(`   ${cred.role}:`)
+    console.log(`   📧 Email:    ${cred.email}`)
+    console.log(`   🔑 Password: ${cred.password}`)
+    console.log(``)
+  })
+  
+  console.log(`🔐 ═══════════════════════════════════════════════════════════════`)
+  console.log(`⚠️  SECURITY NOTES:`)
+  console.log(`   - All accounts require password change on first login`)
+  console.log(`   - Passwords meet 12+ character complexity requirements`)
+  console.log(`   - Save these credentials securely - they won't be shown again`)
+  console.log(`   - Consider enabling 2FA after first login`)
+  console.log(`🔐 ═══════════════════════════════════════════════════════════════\n`)
 }
 
 main()

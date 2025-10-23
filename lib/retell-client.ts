@@ -62,9 +62,9 @@ export interface RetellAgent {
  * Get API key for a tenant
  * Falls back to super admin key if tenant doesn't have one
  */
-async function getApiKey(_tenantId?: string): Promise<string> {
+async function getApiKey(): Promise<string> {
   // TODO: Implement per-tenant API key support
-  // Add retellApiKey field to Tenant model in schema.prisma
+  // Add retellApiKey field to Tenant model in schema.prisma and pass tenantId parameter
   // Uncomment the code below when ready:
   //
   // if (tenantId) {
@@ -92,10 +92,9 @@ async function getApiKey(_tenantId?: string): Promise<string> {
  */
 async function retellFetch<T>(
   endpoint: string,
-  options: RequestInit = {},
-  tenantId?: string
+  options: RequestInit = {}
 ): Promise<T> {
-  const apiKey = await getApiKey(tenantId)
+  const apiKey = await getApiKey()
   
   const response = await fetch(`${RETELL_API_BASE}${endpoint}`, {
     ...options,
@@ -122,7 +121,7 @@ export const retellClient = {
    * Get call details by call ID
    */
   async getCall(callId: string, tenantId?: string): Promise<RetellCall> {
-    return retellFetch<RetellCall>(`/get-call/${callId}`, {}, tenantId)
+    return retellFetch<RetellCall>(`/get-call/${callId}`, {})
   },
   
   /**
@@ -150,8 +149,7 @@ export const retellClient = {
     
     return retellFetch<{ calls: RetellCall[] }>(
       `/list-calls?${params.toString()}`,
-      {},
-      options.tenantId
+      {}
     )
   },
   
@@ -159,14 +157,14 @@ export const retellClient = {
    * Get agent details
    */
   async getAgent(agentId: string, tenantId?: string): Promise<RetellAgent> {
-    return retellFetch<RetellAgent>(`/get-agent/${agentId}`, {}, tenantId)
+    return retellFetch<RetellAgent>(`/get-agent/${agentId}`, {})
   },
   
   /**
    * List all agents
    */
   async listAgents(tenantId?: string): Promise<{ agents: RetellAgent[] }> {
-    return retellFetch<{ agents: RetellAgent[] }>('/list-agents', {}, tenantId)
+    return retellFetch<{ agents: RetellAgent[] }>('/list-agents', {})
   },
   
   /**
@@ -186,8 +184,7 @@ export const retellClient = {
       {
         method: 'POST',
         body: JSON.stringify(body),
-      },
-      tenantId
+      }
     )
   },
   
@@ -212,8 +209,7 @@ export const retellClient = {
       {
         method: 'POST',
         body: JSON.stringify(body),
-      },
-      tenantId
+      }
     )
   },
 }
