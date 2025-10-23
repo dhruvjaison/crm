@@ -164,7 +164,7 @@ export function generateRandomCall(contactId: string, tenantId: string) {
     duration: durationSeconds,
     contactId,
     phoneNumber: `+1${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
-    retellCallId: `arnie_${Math.random().toString(36).substring(7)}`,
+    retellCallId: `call_${Math.random().toString(36).substring(7)}`,
     agentId: `agent_${Math.floor(Math.random() * 5) + 1}`,
     transcript: mockData.transcript,
     summary: mockData.summary,
@@ -239,24 +239,24 @@ export function generateRandomTask(contactId: string, tenantId: string, assigned
 export function calculateCostSavings(callCount: number, avgDurationSeconds: number) {
   const avgDurationMinutes = avgDurationSeconds / 60
   
-  // Arnie AI costs
-  const retellCostPerMinute = 0.05
-  const retellTotalCost = callCount * avgDurationMinutes * retellCostPerMinute
+    // Modern voice solution costs
+    const modernCostPerMinute = 0.05
+    const modernTotalCost = callCount * avgDurationMinutes * modernCostPerMinute
   
   // Traditional call center costs (industry average: $1.00-$1.50 per minute)
   const traditionalCostPerMinute = 1.25
   const traditionalTotalCost = callCount * avgDurationMinutes * traditionalCostPerMinute
   
-  const savings = traditionalTotalCost - retellTotalCost
-  const savingsPercentage = (savings / traditionalTotalCost) * 100
-  
-  return {
-    retellTotalCost,
-    traditionalTotalCost,
-    savings,
-    savingsPercentage,
-    costPerCall: avgDurationMinutes * retellCostPerMinute,
-    traditionalCostPerCall: avgDurationMinutes * traditionalCostPerMinute,
-  }
+    const savings = traditionalTotalCost - modernTotalCost
+    const savingsPercentage = (savings / traditionalTotalCost) * 100
+
+    return {
+      retellTotalCost: modernTotalCost, // Keep field name for compatibility
+      traditionalTotalCost,
+      savings,
+      savingsPercentage,
+      costPerCall: avgDurationMinutes * modernCostPerMinute,
+      traditionalCostPerCall: avgDurationMinutes * traditionalCostPerMinute,
+    }
 }
 

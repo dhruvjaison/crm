@@ -65,7 +65,7 @@ export async function CostSavingsWidget({ tenantId }: CostSavingsWidgetProps) {
           
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-1">
-              Arnie AI Cost
+              Current Cost
             </div>
             <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
               ${savings.retellTotalCost.toFixed(2)}

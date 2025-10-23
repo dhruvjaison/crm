@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Enterprise CRM - Powered by Arnie AI",
-  description: "Modern CRM with AI-powered call intelligence and analytics",
+  title: "Enterprise CRM",
+  description: "Modern CRM platform with intelligent call tracking and analytics",
 };
 
 export default function RootLayout({

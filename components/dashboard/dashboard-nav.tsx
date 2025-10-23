@@ -93,14 +93,14 @@ export function DashboardNav({ session }: DashboardNavProps) {
     <aside className="w-64 border-r bg-white dark:bg-gray-950 hidden md:block">
       <div className="flex flex-col h-full">
         {/* Logo */}
-        <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
-            CRM Pro
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Powered by Arnie AI
-          </p>
-        </div>
+      <div className="p-6 border-b">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
+          CRM Pro
+        </h1>
+        <p className="text-xs text-muted-foreground mt-1">
+          Enterprise Business Platform
+        </p>
+      </div>
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">

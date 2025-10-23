@@ -83,7 +83,12 @@ model User {
   lastActivityAt        DateTime?
   activeSessions        Json?     // Array of session IDs with timestamps
   
-  // Google Calendar Integration
+  // OAuth Sign-In
+  googleId              String?   @unique
+  provider              String    @default("credentials") // "credentials" or "google"
+  providerAccountId     String?
+  
+  // Google Calendar Integration (optional)
   googleAccessToken     String?   @db.Text
   googleRefreshToken    String?   @db.Text
   googleCalendarId      String?

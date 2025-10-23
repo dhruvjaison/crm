@@ -124,9 +124,9 @@ export default async function CallsPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Call Intelligence</h1>
-        <p className="text-muted-foreground">
-          AI-powered call analysis and insights from Arnie AI
-        </p>
+          <p className="text-muted-foreground">
+            Track and analyze your calls with intelligent insights
+          </p>
       </div>
 
       {/* Stats */}

@@ -19,7 +19,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Overview of your Arnie AI powered CRM performance
+          Overview of your business performance and customer insights
         </p>
       </div>
 
