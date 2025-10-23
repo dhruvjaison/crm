@@ -12,17 +12,25 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import dynamic from 'next/dynamic'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
+import { EventInput } from '@fullcalendar/core'
 
-// Dynamically import FullCalendar to avoid SSR issues
-const FullCalendar = dynamic(() => import('@fullcalendar/react'), { ssr: false })
+// Dynamically import the entire calendar component to avoid SSR issues
+const CalendarView = dynamic(() => import('@/components/calendar/calendar-view'), { 
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[600px] items-center justify-center">
+      <div className="text-center">
+        <RefreshCw className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="mt-2 text-sm text-muted-foreground">Loading calendar...</p>
+      </div>
+    </div>
+  )
+})
 
 export default function CalendarPage() {
   const { data: session } = useSession()
   const { toast } = useToast()
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState<EventInput[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
@@ -226,35 +234,11 @@ export default function CalendarPage() {
             </div>
           </div>
         ) : (
-          <div className="h-[600px]">
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="timeGridWeek"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay',
-              }}
-              events={events}
-              editable={true}
-              selectable={true}
-              selectMirror={true}
-              dayMaxEvents={true}
-              weekends={true}
-              eventClick={handleEventClick}
-              select={handleDateSelect}
-              height="100%"
-              slotMinTime="06:00:00"
-              slotMaxTime="22:00:00"
-              allDaySlot={true}
-              nowIndicator={true}
-              businessHours={{
-                daysOfWeek: [1, 2, 3, 4, 5],
-                startTime: '09:00',
-                endTime: '17:00',
-              }}
-            />
-          </div>
+          <CalendarView
+            events={events}
+            onEventClick={handleEventClick}
+            onDateSelect={handleDateSelect}
+          />
         )}
       </Card>
 
