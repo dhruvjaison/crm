@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Mail, Phone, Building, Calendar, TrendingUp, PhoneCall } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { ContactActions } from '@/components/contacts/contact-actions'
 
 export default async function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -70,7 +71,7 @@ export default async function ContactDetailPage({ params }: { params: Promise<{ 
           </h1>
           <p className="text-muted-foreground">{contact.company || 'Contact Details'}</p>
         </div>
-        <Button>Edit Contact</Button>
+        <ContactActions contact={contact} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
