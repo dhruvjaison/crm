@@ -2,12 +2,13 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, CheckCircle2, Clock, AlertCircle, Calendar } from 'lucide-react'
+import { CheckCircle2, Clock, AlertCircle, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { AddTaskButton } from '@/components/tasks/tasks-client'
 
 export default async function TasksPage() {
   const session = await auth()
@@ -74,10 +75,7 @@ export default async function TasksPage() {
           <h1 className="text-3xl font-bold tracking-tight">Tasks</h1>
           <p className="text-muted-foreground">Manage your tasks and activities</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Task
-        </Button>
+        <AddTaskButton />
       </div>
 
       {/* Stats */}
