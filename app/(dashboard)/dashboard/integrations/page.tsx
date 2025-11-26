@@ -20,67 +20,81 @@ export default async function IntegrationsPage() {
   const session = await auth()
   if (!session) redirect('/login')
 
-  // Available integrations
+  // Available integrations - Managed by your service provider
   const integrations = [
     {
-      id: 'retell',
-      name: 'Arnie AI (Retell AI)',
-      description: 'AI voice agents for inbound and outbound calls',
+      id: 'voice-ai',
+      name: 'AI Voice Agents',
+      description: 'Intelligent voice agents for inbound and outbound calls with real-time analytics',
       icon: Phone,
-      status: 'configured', // 'configured', 'not_configured', 'error'
-      category: 'Voice',
-      setupUrl: '/dashboard/integrations/retell',
-      docsUrl: 'https://docs.retellai.com',
+      status: 'managed', // 'managed' = provided by you, 'available' = customer can enable
+      category: 'Voice & Communication',
+      managed: true,
+      setupUrl: null,
+      docsUrl: null,
     },
     {
-      id: 'resend',
-      name: 'Resend',
-      description: 'Email automation and transactional emails',
+      id: 'email',
+      name: 'Email Automation',
+      description: 'Automated email campaigns, sequences, and transactional emails',
       icon: Mail,
-      status: 'not_configured',
-      category: 'Email',
-      setupUrl: '/dashboard/integrations/resend',
-      docsUrl: 'https://resend.com/docs',
+      status: 'available',
+      category: 'Marketing & Sales',
+      managed: false,
+      setupUrl: '/dashboard/integrations/email',
+      docsUrl: null,
     },
     {
-      id: 'twilio',
-      name: 'Twilio',
-      description: 'SMS and WhatsApp messaging',
+      id: 'sms',
+      name: 'SMS & WhatsApp',
+      description: 'Text messaging and WhatsApp business messaging',
       icon: MessageSquare,
-      status: 'not_configured',
-      category: 'SMS',
-      setupUrl: '/dashboard/integrations/twilio',
-      docsUrl: 'https://www.twilio.com/docs',
+      status: 'available',
+      category: 'Marketing & Sales',
+      managed: false,
+      setupUrl: '/dashboard/integrations/sms',
+      docsUrl: null,
     },
     {
-      id: 'google-calendar',
-      name: 'Google Calendar',
-      description: 'Schedule meetings and follow-ups',
+      id: 'calendar',
+      name: 'Calendar Sync',
+      description: 'Sync with Google Calendar, Outlook, and other calendar services',
       icon: Calendar,
-      status: 'not_configured',
-      category: 'Calendar',
-      setupUrl: '/dashboard/integrations/google-calendar',
-      docsUrl: 'https://developers.google.com/calendar',
+      status: 'available',
+      category: 'Productivity',
+      managed: false,
+      setupUrl: '/dashboard/calendar',
+      docsUrl: null,
     },
     {
-      id: 'zapier',
-      name: 'Zapier',
-      description: 'Connect to 5,000+ apps',
+      id: 'automation',
+      name: 'Workflow Automation',
+      description: 'Custom workflows and automation rules for your business processes',
       icon: Zap,
-      status: 'not_configured',
+      status: 'managed',
       category: 'Automation',
-      setupUrl: '/dashboard/integrations/zapier',
-      docsUrl: 'https://zapier.com/apps/crm/integrations',
+      managed: true,
+      setupUrl: null,
+      docsUrl: null,
     },
   ]
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, managed: boolean) => {
+    if (managed) {
+      return (
+        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <CheckCircle2 className="h-3 w-3 mr-1" />
+          Managed For You
+        </Badge>
+      )
+    }
+    
     switch (status) {
       case 'configured':
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            Connected
+            Active
           </Badge>
         )
       case 'error':
@@ -94,7 +108,7 @@ export default async function IntegrationsPage() {
         return (
           <Badge variant="outline" className="text-muted-foreground">
             <AlertCircle className="h-3 w-3 mr-1" />
-            Not Connected
+            Available
           </Badge>
         )
     }
@@ -106,7 +120,7 @@ export default async function IntegrationsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Integrations</h1>
         <p className="text-muted-foreground">
-          Connect your CRM with external services
+          Powerful integrations managed by your service provider
         </p>
       </div>
 
@@ -115,71 +129,82 @@ export default async function IntegrationsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Connected
+              Managed Services
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {integrations.filter(i => i.managed).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Included in your plan
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Available Add-ons
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {integrations.filter(i => !i.managed).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Optional features
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Features
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {integrations.filter(i => i.status === 'configured').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Available
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
               {integrations.length}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Set(integrations.map(i => i.category)).size}
-            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Growing library
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Arnie AI Quick Actions (if configured) */}
-      {integrations.find(i => i.id === 'retell')?.status === 'configured' && (
-        <Card className="border-cyan-200 dark:border-cyan-900">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Phone className="h-5 w-5 text-cyan-600" />
-              Arnie AI Quick Actions
-            </CardTitle>
-            <CardDescription>
-              Manage your Arnie AI integration
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Sync Recent Calls
-              </Button>
-              <Button variant="outline">
-                <Phone className="h-4 w-4 mr-2" />
-                View Agents
-              </Button>
-              <Button variant="outline">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Open Retell Dashboard
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Managed Services Info */}
+      <Card className="border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-blue-600" />
+            Managed Services
+          </CardTitle>
+          <CardDescription>
+            These integrations are fully managed by your service provider
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Your AI voice agents and workflow automation are configured, optimized, and maintained for you. 
+            Data flows automatically into your CRM with no setup required.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" size="sm">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Sync Now
+            </Button>
+            <Button variant="outline" size="sm">
+              <Phone className="h-4 w-4 mr-2" />
+              View Call Logs
+            </Button>
+            <Button variant="outline" size="sm">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Contact Support
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Integrations Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -198,51 +223,53 @@ export default async function IntegrationsPage() {
                       <p className="text-xs text-muted-foreground">{integration.category}</p>
                     </div>
                   </div>
-                  {getStatusBadge(integration.status)}
+                  {getStatusBadge(integration.status, integration.managed)}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
                   {integration.description}
                 </p>
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant={integration.status === 'configured' ? 'outline' : 'default'}
-                    className="flex-1"
-                  >
-                    {integration.status === 'configured' ? 'Configure' : 'Connect'}
-                  </Button>
-                  <Button size="sm" variant="ghost" asChild>
-                    <a 
-                      href={integration.docsUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                {integration.managed ? (
+                  <div className="space-y-2">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      ✓ Included in your plan
+                    </p>
+                    <Button size="sm" variant="outline" className="w-full" disabled>
+                      Managed by Provider
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant={integration.status === 'configured' ? 'outline' : 'default'}
+                      className="flex-1"
+                      disabled={!integration.setupUrl}
                     >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                </div>
+                      {integration.status === 'configured' ? 'Configure' : 'Request Access'}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )
         })}
       </div>
 
-      {/* Documentation Link */}
+      {/* Support & Contact */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Need Help?</CardTitle>
+          <CardTitle className="text-base">Need Additional Integrations?</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Check out our integration guides and API documentation to get started.
+            Want to enable additional features or request a custom integration? 
+            Contact your service provider to discuss your needs.
           </p>
-          <Button variant="outline" asChild>
-            <a href="/INTEGRATION-GUIDE.md" target="_blank">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Integration Guide
-            </a>
+          <Button variant="outline">
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Contact Support
           </Button>
         </CardContent>
       </Card>
