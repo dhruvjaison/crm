@@ -2,10 +2,10 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Mail, Phone, Building } from 'lucide-react'
+import { Mail, Phone, Building } from 'lucide-react'
 import Link from 'next/link'
+import { AddContactButton } from '@/components/contacts/contacts-client'
 
 export default async function ContactsPage() {
   const session = await auth()
@@ -40,10 +40,7 @@ export default async function ContactsPage() {
             Manage your leads and customers
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Contact
-        </Button>
+        <AddContactButton />
       </div>
 
       {/* Stats */}
