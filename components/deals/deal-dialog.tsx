@@ -255,10 +255,13 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                 <Label htmlFor="contactId">
                   Contact <span className="text-red-500">*</span>
                 </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Which contact is this deal for? Search by name or email below.
+                </p>
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search contacts..."
+                    placeholder="Type to search contacts..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-9 mb-2"
@@ -271,22 +274,37 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                   disabled={loading}
                 >
                   <SelectTrigger id="contactId">
-                    <SelectValue placeholder="Select a contact" />
+                    <SelectValue placeholder="Select a contact from the list" />
                   </SelectTrigger>
                   <SelectContent>
                     {filteredContacts.length === 0 ? (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No contacts found
+                      <div className="p-4 text-sm text-center">
+                        <p className="text-muted-foreground mb-2">No contacts found</p>
+                        <p className="text-xs text-muted-foreground">
+                          {searchTerm ? 'Try a different search term' : 'Create a contact first'}
+                        </p>
                       </div>
                     ) : (
                       filteredContacts.map((contact) => (
                         <SelectItem key={contact.id} value={contact.id}>
-                          {contact.firstName} {contact.lastName} ({contact.email})
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {contact.firstName} {contact.lastName}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {contact.email}
+                            </span>
+                          </div>
                         </SelectItem>
                       ))
                     )}
                   </SelectContent>
                 </Select>
+                {!formData.contactId && (
+                  <p className="text-xs text-amber-600">
+                    ⚠️ You must select a contact to create a deal
+                  </p>
+                )}
               </div>
 
               {/* Pipeline Stage */}

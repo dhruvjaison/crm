@@ -20,6 +20,7 @@ interface Contact {
   company: string
   jobTitle: string
   status: 'LEAD' | 'QUALIFIED' | 'CUSTOMER' | 'INACTIVE'
+  leadScore?: number
   notes?: string
   tags: string[]
 }
@@ -44,6 +45,7 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
     company: string
     jobTitle: string
     status: ContactStatus
+    leadScore: string
     notes: string
     tags: string
   }>({
@@ -54,6 +56,7 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
     company: '',
     jobTitle: '',
     status: 'LEAD',
+    leadScore: '50',
     notes: '',
     tags: '',
   })
@@ -69,6 +72,7 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
         company: contact.company || '',
         jobTitle: contact.jobTitle || '',
         status: contact.status || 'LEAD',
+        leadScore: contact.leadScore?.toString() || '50',
         notes: contact.notes || '',
         tags: contact.tags?.join(', ') || '',
       })
@@ -82,6 +86,7 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
         company: '',
         jobTitle: '',
         status: 'LEAD',
+        leadScore: '50',
         notes: '',
         tags: '',
       })
@@ -125,6 +130,7 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
         company: formData.company.trim(),
         jobTitle: formData.jobTitle.trim(),
         status: formData.status,
+        leadScore: parseInt(formData.leadScore) || 50,
         notes: formData.notes.trim() || undefined,
         tags: formData.tags
           .split(',')
@@ -259,24 +265,44 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
               </div>
             </div>
 
-            {/* Status */}
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value as ContactStatus })}
-                disabled={loading}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="LEAD">Lead</SelectItem>
-                  <SelectItem value="QUALIFIED">Qualified</SelectItem>
-                  <SelectItem value="CUSTOMER">Customer</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Status & Lead Score */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({ ...formData, status: value as ContactStatus })}
+                  disabled={loading}
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LEAD">Lead</SelectItem>
+                    <SelectItem value="QUALIFIED">Qualified</SelectItem>
+                    <SelectItem value="CUSTOMER">Customer</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="leadScore">
+                  Lead Score (0-100)
+                </Label>
+                <Input
+                  id="leadScore"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.leadScore}
+                  onChange={(e) => setFormData({ ...formData, leadScore: e.target.value })}
+                  placeholder="50"
+                  disabled={loading}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Higher score = hotter lead
+                </p>
+              </div>
             </div>
 
             {/* Tags */}
