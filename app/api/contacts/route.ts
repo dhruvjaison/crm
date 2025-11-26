@@ -82,29 +82,68 @@ export async function POST(request: NextRequest) {
       status,
       notes,
       tags,
+      leadScore,
+      // Chloe AI Insights
+      leadVolume,
+      industry,
+      painPoint,
+      estimatedRevenueLoss,
+      bookingStatus,
     } = body
 
     // Validation
-    if (!firstName || !lastName || !email) {
+    if (!firstName || !lastName) {
       return NextResponse.json(
-        { error: 'First name, last name, and email are required' },
+        { error: 'First name and last name are required' },
         { status: 400 }
       )
     }
 
-    // Check for duplicate email in same tenant
-    const existingContact = await prisma.contact.findFirst({
-      where: {
-        email: email.toLowerCase(),
-        tenantId: session.user.tenantId,
-      },
-    })
+    // Check for duplicate phone in same tenant (if phone provided)
+    if (phone) {
+      const existingContact = await prisma.contact.findFirst({
+        where: {
+          phone: phone.trim(),
+          tenantId: session.user.tenantId,
+        },
+      })
 
-    if (existingContact) {
-      return NextResponse.json(
-        { error: 'A contact with this email already exists' },
-        { status: 409 }
-      )
+      if (existingContact) {
+        // Update existing contact instead of creating duplicate
+        const updatedContact = await prisma.contact.update({
+          where: { id: existingContact.id },
+          data: {
+            firstName: firstName?.trim() || existingContact.firstName,
+            lastName: lastName?.trim() || existingContact.lastName,
+            email: email?.toLowerCase().trim() || existingContact.email,
+            company: company?.trim() || existingContact.company,
+            jobTitle: jobTitle?.trim() || existingContact.jobTitle,
+            status: (status as ContactStatus) || existingContact.status,
+            notes: notes ? `${existingContact.notes || ''}\n\n${notes.trim()}` : existingContact.notes,
+            tags: tags || existingContact.tags,
+            leadScore: leadScore !== undefined ? leadScore : existingContact.leadScore,
+            // Update Chloe insights
+            leadVolume: leadVolume || existingContact.leadVolume,
+            industry: industry || existingContact.industry,
+            painPoint: painPoint || existingContact.painPoint,
+            estimatedRevenueLoss: estimatedRevenueLoss || existingContact.estimatedRevenueLoss,
+            bookingStatus: bookingStatus || existingContact.bookingStatus,
+          },
+        })
+
+        // Log activity
+        await prisma.activity.create({
+          data: {
+            type: 'CONTACT_UPDATED',
+            description: `Contact ${updatedContact.firstName} ${updatedContact.lastName} was updated via Chloe AI`,
+            tenantId: session.user.tenantId,
+            contactId: updatedContact.id,
+            userId: session.user.id,
+          },
+        })
+
+        return NextResponse.json({ contact: updatedContact, updated: true }, { status: 200 })
+      }
     }
 
     // Create contact
@@ -112,15 +151,21 @@ export async function POST(request: NextRequest) {
       data: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone?.trim() || '',
-        company: company?.trim() || '',
-        jobTitle: jobTitle?.trim() || '',
+        email: email?.toLowerCase().trim() || null,
+        phone: phone?.trim() || null,
+        company: company?.trim() || null,
+        jobTitle: jobTitle?.trim() || null,
         status: (status as ContactStatus) || ContactStatus.LEAD,
         notes: notes?.trim() || null,
         tags: tags || [],
         tenantId: session.user.tenantId,
-        leadScore: 0,
+        leadScore: leadScore !== undefined ? leadScore : 0,
+        // Chloe AI Insights
+        leadVolume: leadVolume?.trim() || null,
+        industry: industry?.trim() || null,
+        painPoint: painPoint?.trim() || null,
+        estimatedRevenueLoss: estimatedRevenueLoss?.trim() || null,
+        bookingStatus: bookingStatus?.trim() || null,
       },
     })
 

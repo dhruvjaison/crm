@@ -82,6 +82,13 @@ export async function PATCH(
       status,
       notes,
       tags,
+      leadScore,
+      // Chloe AI Insights
+      leadVolume,
+      industry,
+      painPoint,
+      estimatedRevenueLoss,
+      bookingStatus,
     } = body
 
     // Check contact exists and belongs to tenant
@@ -127,6 +134,13 @@ export async function PATCH(
         ...(status && { status: status as ContactStatus }),
         ...(notes !== undefined && { notes: notes?.trim() || null }),
         ...(tags !== undefined && { tags }),
+        ...(leadScore !== undefined && { leadScore }),
+        // Chloe AI Insights
+        ...(leadVolume !== undefined && { leadVolume: leadVolume?.trim() || null }),
+        ...(industry !== undefined && { industry: industry?.trim() || null }),
+        ...(painPoint !== undefined && { painPoint: painPoint?.trim() || null }),
+        ...(estimatedRevenueLoss !== undefined && { estimatedRevenueLoss: estimatedRevenueLoss?.trim() || null }),
+        ...(bookingStatus !== undefined && { bookingStatus: bookingStatus?.trim() || null }),
       },
     })
 

@@ -1,0 +1,174 @@
+{
+  "name": "Chloe AI → CRM (Enhanced with Insights)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "retell-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "retell-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"event\"]}}",
+              "operation": "equals",
+              "value2": "call.analyzed"
+            }
+          ]
+        }
+      },
+      "id": "filter-analyzed",
+      "name": "Filter: Call Analyzed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract key data from Chloe's conversation\nconst transcript = $input.item.json.call.transcript || '';\nconst callAnalysis = $input.item.json.call_analysis || {};\nconst call = $input.item.json.call || {};\n\n// Helper function to extract values from transcript\nfunction extractValue(text, patterns) {\n  for (const pattern of patterns) {\n    const match = text.match(pattern);\n    if (match) return match[1]?.trim();\n  }\n  return null;\n}\n\n// Extract lead volume\nconst leadVolume = extractValue(transcript, [\n  /(\\d+)\\s+(?:leads?|inquiries|calls?)\\s+(?:per|a)\\s+(?:week|month)/i,\n  /about\\s+(\\d+)\\s+(?:leads?|inquiries)/i,\n  /roughly\\s+(\\d+)\\s+(?:leads?|inquiries)/i,\n  /getting\\s+(\\d+)\\s+(?:leads?|inquiries)/i\n]);\n\n// Extract industry/business type\nconst industry = extractValue(transcript, [\n  /(?:I run|I have|I own)\\s+(?:a|an)?\\s+([\\w\\s]+?)(?:business|company|practice|clinic)/i,\n  /(?:we're|we are)\\s+(?:a|an)?\\s+([\\w\\s]+?)(?:business|company|contractor)/i,\n  /(?:HVAC|plumbing|dental|restaurant|real estate|healthcare|clinic)/i\n]);\n\n// Extract pain point\nconst painPoint = extractValue(transcript, [\n  /biggest\\s+(?:pain|problem|issue|leak)\\s+is\\s+([^.?!]+)/i,\n  /losing\\s+(?:most|leads)\\s+(?:on|with|from)?\\s+([^.?!]+)/i,\n  /struggle\\s+with\\s+([^.?!]+)/i,\n  /fall(?:ing)?\\s+through\\s+(?:the\\s+)?cracks/i,\n  /(?:slow|missed)\\s+(?:follow-?up|response|calls)/i\n]);\n\n// Extract estimated revenue loss\nconst revenueLoss = extractValue(transcript, [\n  /\\$(\\d+(?:,\\d+)?)\\s+(?:per|a)\\s+month/i,\n  /about\\s+\\$(\\d+(?:,\\d+)?)/i,\n  /(\\d+(?:,\\d+)?)\\s+(?:dollars?|bucks)\\s+(?:per|a)\\s+month/i\n]);\n\n// Extract contact name\nconst firstName = extractValue(transcript, [\n  /(?:my name is|I'm|this is)\\s+([A-Z][a-z]+)/i,\n  /call me\\s+([A-Z][a-z]+)/i\n]);\n\n// Extract business name\nconst businessName = extractValue(transcript, [\n  /(?:business|company)\\s+(?:is|called)?\\s+([A-Z][\\w\\s]+?)(?:\\.|,|and|so)/i,\n  /from\\s+([A-Z][\\w\\s]+?)(?:\\.|,|and|so)/i\n]);\n\n// Extract email\nconst email = extractValue(transcript, [\n  /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})/i\n]);\n\n// Extract contact info\nconst fromNumber = call.from_number || '';\nconst toNumber = call.to_number || '';\nconst callId = call.call_id || '';\nconst duration = call.duration || 0;\nconst sentiment = callAnalysis.user_sentiment || 'Unknown';\nconst callSummary = callAnalysis.call_summary || '';\n\n// Determine booking status from transcript\nlet bookingStatus = 'not_booked';\nif (transcript.match(/let'?s set (?:that|this) up/i) || \n    transcript.match(/book(?:ed)?.*(?:call|meeting)/i) ||\n    transcript.match(/schedule.*(?:call|meeting)/i)) {\n  bookingStatus = 'booked';\n} else if (transcript.match(/not ready|too busy|send (?:me )?info/i)) {\n  bookingStatus = 'deferred';\n} else if (transcript.match(/not interested|no thanks|don'?t (?:need|want)/i)) {\n  bookingStatus = 'disqualified';\n}\n\n// Calculate lead score (0-100)\nlet leadScore = 50; // Base score\n\n// Score based on lead volume\nif (leadVolume) {\n  const volume = parseInt(leadVolume);\n  if (volume > 100) leadScore += 20;\n  else if (volume > 50) leadScore += 15;\n  else if (volume > 20) leadScore += 10;\n}\n\n// Score based on revenue loss\nif (revenueLoss) {\n  const loss = parseInt(revenueLoss.replace(/,/g, ''));\n  if (loss > 10000) leadScore += 20;\n  else if (loss > 5000) leadScore += 15;\n  else if (loss > 2000) leadScore += 10;\n}\n\n// Score based on sentiment\nif (sentiment === 'Positive') leadScore += 10;\nelse if (sentiment === 'Negative') leadScore -= 10;\n\n// Score based on booking status\nif (bookingStatus === 'booked') leadScore += 20;\nelse if (bookingStatus === 'disqualified') leadScore -= 20;\n\n// Cap score between 0-100\nleadScore = Math.max(0, Math.min(100, leadScore));\n\n// Calculate deal value (annual revenue loss)\nconst dealValue = revenueLoss ? parseInt(revenueLoss.replace(/,/g, '')) * 12 : null;\n\n// Create tags\nconst tags = [];\nif (industry) tags.push(industry.toLowerCase());\nif (painPoint) tags.push(painPoint.toLowerCase().substring(0, 30));\nif (bookingStatus) tags.push(bookingStatus);\nif (leadScore >= 80) tags.push('hot-lead');\nelse if (leadScore >= 60) tags.push('warm-lead');\n\nreturn {\n  json: {\n    // Call data\n    callId,\n    fromNumber,\n    toNumber,\n    duration,\n    transcript,\n    sentiment,\n    callSummary,\n    \n    // Extracted insights\n    leadVolume: leadVolume || null,\n    industry: industry || null,\n    painPoint: painPoint || null,\n    estimatedRevenueLoss: revenueLoss ? `$${revenueLoss}/month` : null,\n    bookingStatus,\n    leadScore,\n    \n    // Contact info\n    firstName: firstName || 'Unknown',\n    lastName: 'Lead',\n    businessName: businessName || null,\n    email: email || null,\n    phone: fromNumber,\n    \n    // For CRM\n    contactStatus: bookingStatus === 'booked' ? 'QUALIFIED' : 'LEAD',\n    dealValue,\n    tags,\n    \n    // Notes for CRM\n    notes: `Call Summary: ${callSummary}\\n\\nInsights from Chloe AI:\\n- Lead Volume: ${leadVolume || 'Not mentioned'}\\n- Industry: ${industry || 'Not specified'}\\n- Pain Point: ${painPoint || 'Not specified'}\\n- Estimated Revenue Loss: ${revenueLoss ? '$' + revenueLoss + '/month' : 'Not calculated'}\\n- Booking Status: ${bookingStatus}\\n- Sentiment: ${sentiment}\\n- Lead Score: ${leadScore}/100`\n  }\n};"
+      },
+      "id": "extract-insights",
+      "name": "Extract Chloe Insights",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://crm-swart-ten-11.vercel.app/api/contacts",
+        "authentication": "none",
+        "requestMethod": "POST",
+        "jsonParameters": true,
+        "options": {
+          "headers": {
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "bodyParametersJson": "={\n  \"firstName\": \"{{$json.firstName}}\",\n  \"lastName\": \"{{$json.lastName}}\",\n  \"email\": \"{{$json.email}}\",\n  \"phone\": \"{{$json.phone}}\",\n  \"company\": \"{{$json.businessName}}\",\n  \"status\": \"{{$json.contactStatus}}\",\n  \"leadScore\": {{$json.leadScore}},\n  \"tags\": {{JSON.stringify($json.tags)}},\n  \"notes\": \"{{$json.notes}}\"\n}"
+      },
+      "id": "create-contact",
+      "name": "Create Contact in CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Extract Chloe Insights\"].json.bookingStatus}}",
+              "operation": "equals",
+              "value2": "booked"
+            }
+          ]
+        }
+      },
+      "id": "check-booking",
+      "name": "Check if Booked",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://crm-swart-ten-11.vercel.app/api/pipeline/stages",
+        "authentication": "none",
+        "requestMethod": "GET",
+        "options": {}
+      },
+      "id": "get-stages",
+      "name": "Get Pipeline Stages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1250, 150]
+    },
+    {
+      "parameters": {
+        "url": "https://crm-swart-ten-11.vercel.app/api/deals",
+        "authentication": "none",
+        "requestMethod": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\n  \"title\": \"Strategy Call - {{$node[\"Extract Chloe Insights\"].json.businessName || $node[\"Extract Chloe Insights\"].json.industry || 'New Lead'}}\",\n  \"value\": {{$node[\"Extract Chloe Insights\"].json.dealValue || 0}},\n  \"contactId\": \"{{$node[\"Create Contact in CRM\"].json.contact.id}}\",\n  \"stageId\": \"{{$json.stages[0].id}}\",\n  \"expectedCloseDate\": \"{{new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]}}\"\n}"
+      },
+      "id": "create-deal",
+      "name": "Create Deal in CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1450, 150]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Call processed and insights extracted\", \"leadScore\": $node[\"Extract Chloe Insights\"].json.leadScore, \"bookingStatus\": $node[\"Extract Chloe Insights\"].json.bookingStatus } }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Call processed, no booking\" } }}"
+      },
+      "id": "webhook-response-no-booking",
+      "name": "Webhook Response (No Booking)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 350]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{"node": "Filter: Call Analyzed", "type": "main", "index": 0}]]
+    },
+    "Filter: Call Analyzed": {
+      "main": [[{"node": "Extract Chloe Insights", "type": "main", "index": 0}]]
+    },
+    "Extract Chloe Insights": {
+      "main": [[{"node": "Create Contact in CRM", "type": "main", "index": 0}]]
+    },
+    "Create Contact in CRM": {
+      "main": [[{"node": "Check if Booked", "type": "main", "index": 0}]]
+    },
+    "Check if Booked": {
+      "main": [
+        [{"node": "Get Pipeline Stages", "type": "main", "index": 0}],
+        [{"node": "Webhook Response (No Booking)", "type": "main", "index": 0}]
+      ]
+    },
+    "Get Pipeline Stages": {
+      "main": [[{"node": "Create Deal in CRM", "type": "main", "index": 0}]]
+    },
+    "Create Deal in CRM": {
+      "main": [[{"node": "Webhook Response", "type": "main", "index": 0}]]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "2",
+  "id": "chloe-crm-integration",
+  "meta": {
+    "instanceId": "your-instance-id"
+  },
+  "tags": []
+}
+

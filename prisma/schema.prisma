@@ -153,6 +153,13 @@ model Contact {
   source        String?       // Where did they come from
   notes         String?       @db.Text
   
+  // Chloe AI Insights (from call analysis)
+  leadVolume           String?   // "50 per week"
+  industry             String?   // "HVAC contractor"
+  painPoint            String?   // "slow follow-up"
+  estimatedRevenueLoss String?   // "$6,000/month"
+  bookingStatus        String?   // "booked", "deferred", "disqualified", "not_booked"
+  
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   
