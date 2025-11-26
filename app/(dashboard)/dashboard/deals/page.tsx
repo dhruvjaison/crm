@@ -2,9 +2,11 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, DollarSign } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { DollarSign } from 'lucide-react'
+import Link from 'next/link'
+import { AddDealButton } from '@/components/deals/deals-client'
 
 export default async function DealsPage() {
   const session = await auth()
@@ -45,10 +47,7 @@ export default async function DealsPage() {
             Manage your sales opportunities
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Deal
-        </Button>
+        <AddDealButton />
       </div>
 
       {/* Stats */}
@@ -185,9 +184,11 @@ export default async function DealsPage() {
                       }
                     </p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    View
-                  </Button>
+                  <Link href={`/dashboard/deals/${deal.id}`}>
+                    <Button variant="outline" size="sm">
+                      View
+                    </Button>
+                  </Link>
                 </div>
               </div>
             ))}
