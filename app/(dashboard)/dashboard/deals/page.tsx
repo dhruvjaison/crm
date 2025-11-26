@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { DollarSign } from 'lucide-react'
 import Link from 'next/link'
 import { AddDealButton } from '@/components/deals/deals-client'
+import { NoDeals } from '@/components/empty-states'
 
 export default async function DealsPage() {
   const session = await auth()
@@ -144,8 +145,11 @@ export default async function DealsPage() {
           <CardDescription>Complete deal list</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {deals.map((deal) => (
+          {deals.length === 0 ? (
+            <NoDeals />
+          ) : (
+            <div className="space-y-2">
+              {deals.map((deal) => (
               <div
                 key={deal.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -191,8 +195,9 @@ export default async function DealsPage() {
                   </Link>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Mail, Phone, Building } from 'lucide-react'
 import Link from 'next/link'
 import { AddContactButton } from '@/components/contacts/contacts-client'
+import { NoContacts } from '@/components/empty-states'
 
 export default async function ContactsPage() {
   const session = await auth()
@@ -103,8 +104,11 @@ export default async function ContactsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {contacts.map((contact) => (
+          {contacts.length === 0 ? (
+            <NoContacts />
+          ) : (
+            <div className="space-y-2">
+              {contacts.map((contact) => (
               <div
                 key={contact.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -163,8 +167,9 @@ export default async function ContactsPage() {
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -9,6 +9,7 @@ import { CheckCircle2, Clock, AlertCircle, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { AddTaskButton } from '@/components/tasks/tasks-client'
+import { NoTasks } from '@/components/empty-states'
 
 export default async function TasksPage() {
   const session = await auth()
@@ -140,10 +141,7 @@ export default async function TasksPage() {
         </CardHeader>
         <CardContent>
           {tasks.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <CheckCircle2 className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p>No tasks yet. Create your first task to get started!</p>
-            </div>
+            <NoTasks />
           ) : (
             <div className="space-y-2">
               {tasks.map((task) => (
