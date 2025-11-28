@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { LogOut, User, Settings } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { NotificationsPanel } from './notifications-panel'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface DashboardHeaderProps {
   session: Session
@@ -40,8 +41,11 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
           </h2>
         </div>
 
-        {/* Right side - notifications and user menu */}
-        <div className="flex items-center gap-4">
+        {/* Right side - theme, notifications and user menu */}
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {/* Notifications */}
           <NotificationsPanel />
 
