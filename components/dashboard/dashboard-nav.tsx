@@ -14,7 +14,8 @@ import {
   Settings,
   Briefcase,
   Building2,
-  Plug
+  Plug,
+  HelpCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -68,6 +69,11 @@ const navItems = [
     title: 'Integrations',
     href: '/dashboard/integrations',
     icon: Plug,
+  },
+  {
+    title: 'Help',
+    href: '/dashboard/help',
+    icon: HelpCircle,
   },
   {
     title: 'Settings',

@@ -133,9 +133,9 @@ export function WelcomeDashboard({ userName }: { userName?: string }) {
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full" variant="ghost">
-              <a href="#" target="_blank" rel="noopener noreferrer">
+              <Link href="/dashboard/help">
                 View Documentation
-              </a>
+              </Link>
             </Button>
           </CardContent>
         </Card>
