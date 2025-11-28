@@ -116,19 +116,25 @@ export function DashboardNav({ session }: DashboardNavProps) {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
             
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400'
-                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {item.title}
-              </Link>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out relative group',
+                    isActive
+                      ? 'bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 dark:from-cyan-950 dark:to-blue-950 dark:text-cyan-400 shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 hover:translate-x-1'
+                  )}
+                >
+                  <Icon className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    isActive ? "scale-110" : "group-hover:scale-110"
+                  )} />
+                  {item.title}
+                  {isActive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-cyan-500 to-blue-600 rounded-r-full" />
+                  )}
+                </Link>
             )
           })}
 
@@ -142,19 +148,25 @@ export function DashboardNav({ session }: DashboardNavProps) {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
                 
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400'
-                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.title}
-                  </Link>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out relative group',
+                        isActive
+                          ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 dark:from-purple-950 dark:to-pink-950 dark:text-purple-400 shadow-sm'
+                          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 hover:translate-x-1'
+                      )}
+                    >
+                      <Icon className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        isActive ? "scale-110" : "group-hover:scale-110"
+                      )} />
+                      {item.title}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-500 to-pink-600 rounded-r-full" />
+                      )}
+                    </Link>
                 )
               })}
             </>
