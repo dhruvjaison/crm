@@ -93,12 +93,12 @@ export function DashboardNav({ session }: DashboardNavProps) {
     <aside className="w-64 border-r bg-white dark:bg-gray-950 hidden md:block">
       <div className="flex flex-col h-full">
         {/* Logo */}
-      <div className="px-6 py-5 border-b">
+      <div className="px-6 py-6 border-b flex items-center justify-center">
         <Link href="/dashboard" className="block group">
           <img 
             src="/clarostrategy.png" 
             alt="Claro Strategy" 
-            className="h-8 w-auto max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
+            className="h-16 w-auto max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
           />
         </Link>
       </div>
