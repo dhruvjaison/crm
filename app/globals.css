@@ -190,6 +190,17 @@
     background-color: rgba(0, 0, 0, 0.8) !important;
   }
   
+  /* Ensure dropdown menus are fully opaque */
+  [data-slot="dropdown-menu-content"] {
+    opacity: 1 !important;
+    background-color: hsl(var(--popover)) !important;
+  }
+  
+  /* Ensure popovers are fully opaque */
+  [data-radix-popper-content-wrapper] {
+    z-index: 50 !important;
+  }
+  
   /* Premium Typography Hierarchy */
   h1 {
     @apply text-4xl font-bold tracking-tight;
