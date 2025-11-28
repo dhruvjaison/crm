@@ -73,25 +73,30 @@ export async function StatsCards({ tenantId }: StatsCardsProps) {
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => {
         const Icon = stat.icon
         return (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+          <Card key={stat.title} className="premium-card-hover group overflow-hidden relative">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 {stat.title}
               </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <Icon className={`h-4 w-4 ${stat.color}`} />
+              <div className={`p-3 rounded-xl ${stat.bgColor} transition-transform duration-300 group-hover:scale-110`}>
+                <Icon className={`h-5 w-5 ${stat.color}`} />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">
+            <CardContent className="space-y-2">
+              <div className="text-3xl font-bold tracking-tight transition-colors duration-300 group-hover:text-primary">
+                {stat.value}
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {stat.description}
               </p>
             </CardContent>
+            
+            {/* Subtle gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           </Card>
         )
       })}

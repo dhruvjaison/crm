@@ -29,23 +29,25 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your business performance and customer insights
+    <div className="space-y-8">
+      {/* Premium Page Header with Gradient */}
+      <div className="space-y-2">
+        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+          Dashboard
+        </h1>
+        <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
+          Welcome back, {session.user.name?.split(' ')[0] || 'there'}! Here&apos;s what&apos;s happening with your business today.
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards with Premium Spacing */}
       <StatsCards tenantId={session.user.tenantId} />
 
       {/* Cost Savings Highlight */}
       <CostSavingsWidget tenantId={session.user.tenantId} />
 
-      {/* Charts Row */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Charts Row with Better Gap */}
+      <div className="grid gap-8 md:grid-cols-2">
         <CallVolumeChart tenantId={session.user.tenantId} />
         <SentimentChart tenantId={session.user.tenantId} />
       </div>
