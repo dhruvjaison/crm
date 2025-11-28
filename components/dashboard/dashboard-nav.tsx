@@ -101,9 +101,6 @@ export function DashboardNav({ session }: DashboardNavProps) {
             className="h-10 w-auto transition-transform duration-200 group-hover:scale-105"
           />
         </Link>
-        <p className="text-xs text-muted-foreground mt-2">
-          Enterprise Business Platform
-        </p>
       </div>
 
         {/* Navigation */}
