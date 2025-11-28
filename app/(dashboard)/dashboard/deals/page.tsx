@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DollarSign } from 'lucide-react'
 import Link from 'next/link'
-import { AddDealButton } from '@/components/deals/deals-client'
+import { AddDealButton, ImportDealsButton } from '@/components/deals/deals-client'
 import { NoDeals } from '@/components/empty-states'
 
 export default async function DealsPage() {
@@ -48,7 +48,10 @@ export default async function DealsPage() {
             Manage your sales opportunities
           </p>
         </div>
-        <AddDealButton />
+        <div className="flex gap-2">
+          <ImportDealsButton />
+          <AddDealButton />
+        </div>
       </div>
 
       {/* Stats */}

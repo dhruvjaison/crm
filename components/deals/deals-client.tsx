@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, Upload } from 'lucide-react'
 import { DealDialog } from './deal-dialog'
+import { CSVImportDealsDialog } from './csv-import-deals-dialog'
 
 export function AddDealButton() {
   const [open, setOpen] = useState(false)
@@ -20,6 +21,25 @@ export function AddDealButton() {
         open={open}
         onOpenChange={setOpen}
         onSuccess={() => router.refresh()}
+      />
+    </>
+  )
+}
+
+export function ImportDealsButton() {
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
+
+  return (
+    <>
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <Upload className="h-4 w-4 mr-2" />
+        Import CSV
+      </Button>
+      <CSVImportDealsDialog
+        open={open}
+        onOpenChange={setOpen}
+        onImportComplete={() => router.refresh()}
       />
     </>
   )
