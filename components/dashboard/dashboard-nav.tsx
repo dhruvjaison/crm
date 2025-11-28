@@ -94,10 +94,14 @@ export function DashboardNav({ session }: DashboardNavProps) {
       <div className="flex flex-col h-full">
         {/* Logo */}
       <div className="p-6 border-b">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
-          CRM Pro
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
+        <Link href="/dashboard" className="block group">
+          <img 
+            src="/clarostrategy.png" 
+            alt="Claro Strategy" 
+            className="h-10 w-auto transition-transform duration-200 group-hover:scale-105"
+          />
+        </Link>
+        <p className="text-xs text-muted-foreground mt-2">
           Enterprise Business Platform
         </p>
       </div>
