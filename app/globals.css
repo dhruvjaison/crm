@@ -175,6 +175,16 @@
     -moz-osx-font-smoothing: grayscale;
   }
   
+  /* Ensure dialogs are fully opaque and on top */
+  [data-slot="dialog-content"] {
+    opacity: 1 !important;
+    z-index: 100 !important;
+  }
+  
+  [data-slot="dialog-overlay"] {
+    z-index: 50 !important;
+  }
+  
   /* Premium Typography Hierarchy */
   h1 {
     @apply text-4xl font-bold tracking-tight;
