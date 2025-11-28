@@ -96,7 +96,7 @@ export function DashboardNav({ session }: DashboardNavProps) {
       <div className="px-6 py-6 border-b flex items-center justify-center">
         <Link href="/dashboard" className="block group">
           <img 
-            src="/clarostrategy.png" 
+            src="/clarostrategy-crop.png" 
             alt="Claro Strategy" 
             className="h-16 w-auto max-w-full object-contain transition-transform duration-200 group-hover:scale-105"
           />
