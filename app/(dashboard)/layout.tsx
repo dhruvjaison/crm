@@ -15,15 +15,17 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
       {/* Sidebar */}
       <DashboardNav session={session} />
       
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         <DashboardHeader session={session} />
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
-          {children}
+        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-8">
+          <div className="max-w-[1600px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -32,8 +32,8 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
     : session.user.email?.[0].toUpperCase()
 
   return (
-    <header className="border-b bg-white dark:bg-gray-950 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-md dark:bg-slate-900/80 dark:border-slate-700/60 px-8 py-4 shadow-sm">
+      <div className="flex items-center justify-between max-w-[1600px] mx-auto">
         {/* Left side - could add breadcrumbs or search */}
         <div className="flex items-center gap-4">
           <h2 className="text-sm font-medium text-muted-foreground">
