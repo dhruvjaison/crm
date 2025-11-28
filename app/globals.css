@@ -179,10 +179,12 @@
   [data-slot="dialog-content"] {
     opacity: 1 !important;
     z-index: 100 !important;
+    background-color: hsl(var(--background)) !important;
   }
   
   [data-slot="dialog-overlay"] {
     z-index: 50 !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
   }
   
   /* Premium Typography Hierarchy */
