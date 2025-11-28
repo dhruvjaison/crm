@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { TaskStatus, TaskPriority } from '@prisma/client'
+import { createNotification } from '@/lib/notifications'
 
 /**
  * GET /api/tasks/[id] - Get single task
@@ -128,6 +129,21 @@ export async function PATCH(
         ...(task.dealId && { dealId: task.dealId }),
       },
     })
+
+    // Notify assignee if task status changed to COMPLETED
+    if (status === TaskStatus.COMPLETED && existingTask.status !== TaskStatus.COMPLETED) {
+      if (task.assignedToId && task.assignedToId !== session.user.id) {
+        await createNotification({
+          userId: task.assignedToId,
+          tenantId: session.user.tenantId,
+          type: 'TASK_ASSIGNED',
+          title: 'Task completed',
+          message: `"${task.title}" was marked as complete`,
+          taskId: task.id,
+          actionUrl: `/dashboard/tasks`,
+        })
+      }
+    }
 
     return NextResponse.json({ task })
   } catch (error) {

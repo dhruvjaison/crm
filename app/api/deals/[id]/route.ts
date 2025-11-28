@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { DealStatus } from '@prisma/client'
+import { createNotification } from '@/lib/notifications'
 
 /**
  * GET /api/deals/[id] - Get single deal
@@ -147,7 +148,7 @@ export async function PATCH(
       },
     })
 
-    // Log activity
+    // Log activity and create notifications
     if (stageChanged && newStage) {
       await prisma.activity.create({
         data: {
@@ -159,6 +160,19 @@ export async function PATCH(
           userId: session.user.id,
         },
       })
+
+      // Notify deal owner if they didn't make the change
+      if (deal.ownerId && deal.ownerId !== session.user.id) {
+        await createNotification({
+          userId: deal.ownerId,
+          tenantId: session.user.tenantId,
+          type: 'DEAL_STAGE_CHANGED',
+          title: 'Deal stage changed',
+          message: `"${deal.title}" moved from ${existingDeal.stage.name} to ${newStage.name}`,
+          dealId: deal.id,
+          actionUrl: `/dashboard/deals/${deal.id}`,
+        })
+      }
     } else {
       await prisma.activity.create({
         data: {
@@ -170,6 +184,31 @@ export async function PATCH(
           userId: session.user.id,
         },
       })
+    }
+
+    // Check if deal was won or lost
+    if (status && status !== existingDeal.status) {
+      if (status === 'WON' && deal.ownerId) {
+        await createNotification({
+          userId: deal.ownerId,
+          tenantId: session.user.tenantId,
+          type: 'DEAL_WON',
+          title: '🎉 Deal Won!',
+          message: `Congratulations! "${deal.title}" worth $${(deal.value || 0).toLocaleString()} was won!`,
+          dealId: deal.id,
+          actionUrl: `/dashboard/deals/${deal.id}`,
+        })
+      } else if (status === 'LOST' && deal.ownerId) {
+        await createNotification({
+          userId: deal.ownerId,
+          tenantId: session.user.tenantId,
+          type: 'DEAL_LOST',
+          title: 'Deal Lost',
+          message: `"${deal.title}" was marked as lost`,
+          dealId: deal.id,
+          actionUrl: `/dashboard/deals/${deal.id}`,
+        })
+      }
     }
 
     return NextResponse.json({ deal })

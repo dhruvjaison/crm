@@ -40,6 +40,7 @@ model Tenant {
   customFields CustomField[]
   activities Activity[]
   pipelineStages PipelineStage[]
+  notifications Notification[]
   
   @@index([slug])
 }
@@ -105,6 +106,7 @@ model User {
   securityEvents SecurityEvent[]
   calendarEvents CalendarEvent[]
   sharedCalendars SharedCalendarMember[]
+  notifications Notification[]
   
   @@index([tenantId])
   @@index([email])
@@ -689,4 +691,52 @@ model SharedCalendarMember {
   @@unique([calendarId, userId])
   @@index([calendarId])
   @@index([userId])
+}
+
+// ==================== NOTIFICATIONS ====================
+
+enum NotificationType {
+  DEAL_WON
+  DEAL_LOST
+  DEAL_STAGE_CHANGED
+  TASK_ASSIGNED
+  TASK_DUE_SOON
+  TASK_OVERDUE
+  CONTACT_CREATED
+  CALL_COMPLETED
+  EMAIL_SENT
+  MENTION
+  SYSTEM
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  title       String
+  message     String           @db.Text
+  read        Boolean          @default(false)
+  
+  // Links
+  contactId   String?
+  dealId      String?
+  taskId      String?
+  callId      String?
+  
+  // Metadata
+  metadata    Json?            // Additional data
+  actionUrl   String?          // Where to navigate when clicked
+  
+  // Relations
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  tenantId    String
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime         @default(now())
+  
+  @@index([userId])
+  @@index([tenantId])
+  @@index([read])
+  @@index([createdAt])
 }

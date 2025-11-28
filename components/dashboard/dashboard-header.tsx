@@ -13,8 +13,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Bell, LogOut, User, Settings } from 'lucide-react'
+import { LogOut, User, Settings } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { NotificationsPanel } from './notifications-panel'
 
 interface DashboardHeaderProps {
   session: Session
@@ -42,10 +43,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
         {/* Right side - notifications and user menu */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-          </Button>
+          <NotificationsPanel />
 
           {/* User Menu */}
           <DropdownMenu>
