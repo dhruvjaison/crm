@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Mail, Phone, Building } from 'lucide-react'
 import Link from 'next/link'
-import { AddContactButton } from '@/components/contacts/contacts-client'
+import { AddContactButton, ImportContactsButton } from '@/components/contacts/contacts-client'
 import { NoContacts } from '@/components/empty-states'
 
 export default async function ContactsPage() {
@@ -42,7 +42,10 @@ export default async function ContactsPage() {
             Manage your leads and customers
           </p>
         </div>
-        <AddContactButton />
+        <div className="flex gap-2">
+          <ImportContactsButton />
+          <AddContactButton />
+        </div>
       </div>
 
       {/* Stats */}
