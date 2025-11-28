@@ -45,8 +45,8 @@ export default async function CostSavingsPage() {
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
               Cost Savings Analysis
             </h1>
-            <p className="text-base text-muted-foreground mt-1">
-              See how much you're saving with AI-powered voice solutions
+              <p className="text-base text-muted-foreground mt-1">
+              See how much you&apos;re saving with AI-powered voice solutions
             </p>
           </div>
         </div>
@@ -195,7 +195,7 @@ export default async function CostSavingsPage() {
           <div className="mt-8 p-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-lg font-semibold opacity-90">You're Saving</p>
+                <p className="text-lg font-semibold opacity-90">You&apos;re Saving</p>
                 <p className="text-4xl font-bold mt-1">${savings.savings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <div className="text-right">
