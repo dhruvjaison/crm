@@ -23,14 +23,9 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface IntegrationTestPanelProps {
-  userId: string
-  tenantId: string
-}
-
-export function IntegrationTestPanel({ userId, tenantId }: IntegrationTestPanelProps) {
+export function IntegrationTestPanel() {
   const [testing, setTesting] = useState(false)
-  const [testResults, setTestResults] = useState<any>(null)
+  const [testResults, setTestResults] = useState<Record<string, unknown> | null>(null)
   const [copied, setCopied] = useState(false)
 
   const webhookUrl = `https://crm-swart-ten-11.vercel.app/api/webhooks/retell`
@@ -80,11 +75,12 @@ export function IntegrationTestPanel({ userId, tenantId }: IntegrationTestPanelP
         })
         toast.error('Webhook test failed')
       }
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Connection error'
       setTestResults({
         status: 'error',
         message: 'Connection error',
-        error: error.message,
+        error: message,
       })
       toast.error('Connection error')
     } finally {
@@ -112,11 +108,12 @@ export function IntegrationTestPanel({ userId, tenantId }: IntegrationTestPanelP
           message: 'Calendar sync failed',
         })
       }
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Connection error'
       toast.error('Connection error')
       setTestResults({
         status: 'error',
-        message: error.message,
+        message,
       })
     } finally {
       setTesting(false)
@@ -132,11 +129,12 @@ export function IntegrationTestPanel({ userId, tenantId }: IntegrationTestPanelP
         status: 'success',
         message: 'Test email sent successfully',
       })
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Email test failed'
       toast.error('Email test failed')
       setTestResults({
         status: 'error',
-        message: error.message,
+        message,
       })
     } finally {
       setTesting(false)
