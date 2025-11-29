@@ -1,9 +1,11 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { prisma } from '@/lib/db'
-import { User, Building, Palette } from 'lucide-react'
+import { Palette } from 'lucide-react'
+import { OrganizationSettings } from '@/components/settings/organization-settings'
+import { ProfileSettings } from '@/components/settings/profile-settings'
+import { TeamManagement } from '@/components/settings/team-management'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -24,6 +26,9 @@ export default async function SettingsPage() {
     },
   })
 
+  const canEditOrg = session.user.role === 'SUPER_ADMIN' || session.user.role === 'CLIENT_ADMIN'
+  const canManageTeam = session.user.role === 'SUPER_ADMIN' || session.user.role === 'CLIENT_ADMIN'
+
   return (
     <div className="space-y-6">
       <div>
@@ -32,91 +37,40 @@ export default async function SettingsPage() {
       </div>
 
       {/* Organization Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Organization
-          </CardTitle>
-          <CardDescription>Your organization details</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Organization Name</label>
-            <p className="text-lg font-semibold">{tenant?.name}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Plan</label>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="outline" className="capitalize">{tenant?.planTier}</Badge>
-              <span className="text-sm text-muted-foreground">
-                Up to {tenant?.maxUsers} users
-              </span>
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Tenant ID</label>
-            <p className="text-sm font-mono">{tenant?.slug}</p>
-          </div>
-        </CardContent>
-      </Card>
+      {tenant && (
+        <OrganizationSettings
+          tenant={{
+            id: tenant.id,
+            name: tenant.name,
+            planTier: tenant.planTier,
+            maxUsers: tenant.maxUsers,
+            slug: tenant.slug,
+          }}
+          canEdit={canEditOrg}
+        />
+      )}
 
       {/* User Profile */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Your Profile
-          </CardTitle>
-          <CardDescription>Your account information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Name</label>
-            <p className="text-lg">{session.user.name}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Email</label>
-            <p className="text-lg">{session.user.email}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Role</label>
-            <Badge className="mt-1">{session.user.role.replace('_', ' ')}</Badge>
-          </div>
-        </CardContent>
-      </Card>
+      <ProfileSettings
+        user={{
+          name: session.user.name || '',
+          email: session.user.email || '',
+          role: session.user.role,
+        }}
+      />
 
       {/* Team Members (for admins) */}
-      {(session.user.role === 'SUPER_ADMIN' || session.user.role === 'CLIENT_ADMIN') && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Team Members</CardTitle>
-            <CardDescription>{users.length} users in your organization</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{user.role.replace('_', ' ')}</Badge>
-                    {user.isActive ? (
-                      <Badge className="bg-green-100 text-green-800">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Inactive</Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {canManageTeam && (
+        <TeamManagement
+          users={users.map(u => ({
+            id: u.id,
+            name: u.name || '',
+            email: u.email || '',
+            role: u.role,
+            isActive: u.isActive,
+          }))}
+          canManage={canManageTeam}
+        />
       )}
 
       {/* Branding (placeholder) */}
