@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { GuidedWalkthrough } from '@/components/help/guided-walkthrough'
 import { 
   BookOpen, 
   Users, 
@@ -15,7 +16,8 @@ import {
   DollarSign,
   Search,
   FileText,
-  MessageCircle
+  MessageCircle,
+  PlayCircle
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -170,6 +172,45 @@ export default async function HelpPage() {
               placeholder="Search help articles..."
               className="pl-10 h-12 text-base"
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Interactive Walkthrough */}
+      <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-primary/10">
+              <PlayCircle className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">Interactive Walkthrough</CardTitle>
+              <CardDescription className="text-base">
+                Take a guided tour through all CRM features. Navigate at your own pace.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                ✓ 10 sections
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1">
+                ✓ Self-paced
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1">
+                ✓ No screen blocking
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1">
+                ✓ Jump to any section
+              </span>
+            </div>
+            <GuidedWalkthrough />
           </div>
         </CardContent>
       </Card>
