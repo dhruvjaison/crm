@@ -23,9 +23,16 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+interface TestResult {
+  status: string
+  message: string
+  error?: string
+  data?: unknown
+}
+
 export function IntegrationTestPanel() {
   const [testing, setTesting] = useState(false)
-  const [testResults, setTestResults] = useState<Record<string, unknown> | null>(null)
+  const [testResults, setTestResults] = useState<TestResult | null>(null)
   const [copied, setCopied] = useState(false)
 
   const webhookUrl = `https://crm-swart-ten-11.vercel.app/api/webhooks/retell`
