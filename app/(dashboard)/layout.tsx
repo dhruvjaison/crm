@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { DashboardNav } from '@/components/dashboard/dashboard-nav'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
-import { OnboardingTour } from '@/components/onboarding/onboarding-tour'
+import { InteractiveOnboarding } from '@/components/onboarding/interactive-onboarding'
 
 export default async function DashboardLayout({
   children,
@@ -31,7 +31,7 @@ export default async function DashboardLayout({
       </div>
       
       {/* Onboarding Tour */}
-      <OnboardingTour />
+      <InteractiveOnboarding />
     </div>
   )
 }

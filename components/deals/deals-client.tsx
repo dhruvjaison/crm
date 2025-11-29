@@ -11,16 +11,26 @@ export function AddDealButton() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
+  const handleSuccess = () => {
+    // Mark step as complete for onboarding
+    localStorage.setItem('first_deal_created', 'true')
+    router.refresh()
+  }
+
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
+      <Button 
+        onClick={() => setOpen(true)}
+        data-onboarding="create-deal-button"
+        className="relative"
+      >
         <Plus className="h-4 w-4 mr-2" />
         Create Deal
       </Button>
       <DealDialog
         open={open}
         onOpenChange={setOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={handleSuccess}
       />
     </>
   )

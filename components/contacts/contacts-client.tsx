@@ -11,16 +11,26 @@ export function AddContactButton() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
+  const handleSuccess = () => {
+    // Mark step as complete for onboarding
+    localStorage.setItem('first_contact_added', 'true')
+    router.refresh()
+  }
+
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
+      <Button 
+        onClick={() => setOpen(true)}
+        data-onboarding="add-contact-button"
+        className="relative"
+      >
         <Plus className="h-4 w-4 mr-2" />
         Add Contact
       </Button>
       <ContactDialog
         open={open}
         onOpenChange={setOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={handleSuccess}
       />
     </>
   )
