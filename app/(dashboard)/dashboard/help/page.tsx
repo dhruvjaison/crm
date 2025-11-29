@@ -14,7 +14,6 @@ import {
   Plug,
   DollarSign,
   Search,
-  Video,
   FileText,
   MessageCircle
 } from 'lucide-react'
@@ -145,7 +144,6 @@ export default async function HelpPage() {
   ]
 
   const quickLinks = [
-    { title: 'Video Tutorials', icon: Video, href: '/dashboard/help/videos' },
     { title: 'API Documentation', icon: FileText, href: '/dashboard/help/api' },
     { title: 'Contact Support', icon: MessageCircle, href: '/dashboard/help/support' },
   ]
@@ -177,7 +175,7 @@ export default async function HelpPage() {
       </Card>
 
       {/* Quick Links */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {quickLinks.map((link) => {
           const Icon = link.icon
           return (
