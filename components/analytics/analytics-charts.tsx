@@ -11,6 +11,9 @@ import {
   Tooltip, 
   ResponsiveContainer
 } from 'recharts'
+import { TrendingUp, DollarSign } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 interface RevenueData {
   month: string
@@ -68,6 +71,8 @@ export function AnalyticsCharts() {
     )
   }
 
+  const hasData = data && data.length > 0 && data.some(d => d.revenue > 0)
+
   return (
     <Card>
       <CardHeader>
@@ -75,30 +80,50 @@ export function AnalyticsCharts() {
         <CardDescription>Monthly revenue for the last 12 months</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="month" 
-              className="text-xs"
-              tick={{ fill: 'hsl(var(--muted-foreground))' }}
-            />
-            <YAxis 
-              className="text-xs"
-              tick={{ fill: 'hsl(var(--muted-foreground))' }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Line 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="hsl(var(--primary))" 
-              strokeWidth={2}
-              dot={{ fill: 'hsl(var(--primary))', r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {!hasData ? (
+          <div className="h-[300px] flex flex-col items-center justify-center text-center space-y-4">
+            <div className="p-4 bg-muted/50 rounded-full">
+              <TrendingUp className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">No revenue data yet</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Close some deals to see your revenue trends and growth over time.
+              </p>
+            </div>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/deals">
+                <DollarSign className="h-4 w-4 mr-2" />
+                View Deals
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis 
+                dataKey="month" 
+                className="text-xs"
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              />
+              <YAxis 
+                className="text-xs"
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line 
+                type="monotone" 
+                dataKey="revenue" 
+                stroke="hsl(var(--primary))" 
+                strokeWidth={2}
+                dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   )
