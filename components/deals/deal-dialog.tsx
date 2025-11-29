@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from 'sonner'
-import { Loader2, Search } from 'lucide-react'
+import { Loader2, Search, HelpCircle, DollarSign } from 'lucide-react'
 
 interface Contact {
   id: string
@@ -203,52 +204,81 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-              {/* Deal Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title">
-                  Deal Title <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Q4 Enterprise License"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              {/* Value & Expected Close Date */}
-              <div className="grid grid-cols-2 gap-4">
+          <TooltipProvider>
+            <form onSubmit={handleSubmit}>
+              <div className="grid gap-4 py-4">
+                {/* Deal Title */}
                 <div className="space-y-2">
-                  <Label htmlFor="value">
-                    Deal Value ($) <span className="text-red-500">*</span>
+                  <Label htmlFor="title">
+                    Deal Title <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    id="value"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.value}
-                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                    placeholder="50000.00"
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Q4 Enterprise License"
                     disabled={loading}
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expectedCloseDate">Expected Close Date</Label>
-                  <Input
-                    id="expectedCloseDate"
-                    type="date"
-                    value={formData.expectedCloseDate}
-                    onChange={(e) => setFormData({ ...formData, expectedCloseDate: e.target.value })}
-                    disabled={loading}
-                  />
+
+                {/* Value & Expected Close Date */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="value">
+                        Deal Value ($) <span className="text-red-500">*</span>
+                      </Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-xs">
+                            Enter the total potential value of this deal in USD. This helps track your pipeline value and forecast revenue.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="value"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.value}
+                        onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                        placeholder="50000.00"
+                        disabled={loading}
+                        required
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="expectedCloseDate">Expected Close Date</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-xs">
+                            When do you expect to close this deal? This helps with revenue forecasting and prioritization.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <Input
+                      id="expectedCloseDate"
+                      type="date"
+                      value={formData.expectedCloseDate}
+                      onChange={(e) => setFormData({ ...formData, expectedCloseDate: e.target.value })}
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
-              </div>
 
               {/* Contact Selection */}
               <div className="space-y-2">
@@ -273,7 +303,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                   onValueChange={(value) => setFormData({ ...formData, contactId: value })}
                   disabled={loading}
                 >
-                  <SelectTrigger id="contactId">
+                  <SelectTrigger id="contactId" className="h-11">
                     <SelectValue placeholder="Select a contact from the list" />
                   </SelectTrigger>
                   <SelectContent>
@@ -286,7 +316,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                       </div>
                     ) : (
                       filteredContacts.map((contact) => (
-                        <SelectItem key={contact.id} value={contact.id}>
+                        <SelectItem key={contact.id} value={contact.id} className="py-3 cursor-pointer">
                           <div className="flex flex-col">
                             <span className="font-medium">
                               {contact.firstName} {contact.lastName}
@@ -309,20 +339,32 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
 
               {/* Pipeline Stage */}
               <div className="space-y-2">
-                <Label htmlFor="stageId">
-                  Pipeline Stage <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="stageId">
+                    Pipeline Stage <span className="text-red-500">*</span>
+                  </Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-xs">
+                        Select where this deal is in your sales pipeline. Each stage has a probability of closing that affects your revenue forecast.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Select
                   value={formData.stageId}
                   onValueChange={(value) => setFormData({ ...formData, stageId: value })}
                   disabled={loading}
                 >
-                  <SelectTrigger id="stageId">
+                  <SelectTrigger id="stageId" className="h-11">
                     <SelectValue placeholder="Select a stage" />
                   </SelectTrigger>
                   <SelectContent>
                     {stages.map((stage) => (
-                      <SelectItem key={stage.id} value={stage.id}>
+                      <SelectItem key={stage.id} value={stage.id} className="py-3">
                         {stage.name} ({stage.probability}% probability)
                       </SelectItem>
                     ))}
@@ -346,7 +388,8 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                 {deal ? 'Update Deal' : 'Create Deal'}
               </Button>
             </DialogFooter>
-          </form>
+            </form>
+          </TooltipProvider>
         )}
       </DialogContent>
     </Dialog>

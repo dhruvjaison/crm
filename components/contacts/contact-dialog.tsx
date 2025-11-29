@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, HelpCircle, CheckCircle2, XCircle } from 'lucide-react'
 
 interface Contact {
   id: string
@@ -61,6 +62,11 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
     tags: '',
   })
 
+  const [validationErrors, setValidationErrors] = useState<{
+    email?: string
+    leadScore?: string
+  }>({})
+
   // Populate form when editing
   useEffect(() => {
     if (contact) {
@@ -96,6 +102,25 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return re.test(email)
+  }
+
+  const handleEmailChange = (email: string) => {
+    setFormData({ ...formData, email })
+    if (email && !validateEmail(email)) {
+      setValidationErrors(prev => ({ ...prev, email: 'Invalid email format' }))
+    } else {
+      setValidationErrors(prev => ({ ...prev, email: undefined }))
+    }
+  }
+
+  const handleLeadScoreChange = (score: string) => {
+    setFormData({ ...formData, leadScore: score })
+    const numScore = parseInt(score)
+    if (score && (isNaN(numScore) || numScore < 0 || numScore > 100)) {
+      setValidationErrors(prev => ({ ...prev, leadScore: 'Must be between 0-100' }))
+    } else {
+      setValidationErrors(prev => ({ ...prev, leadScore: undefined }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -180,7 +205,8 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <TooltipProvider>
+          <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">
@@ -218,15 +244,30 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
                 <Label htmlFor="email">
                   Email <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="john.doe@company.com"
-                  disabled={loading}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    placeholder="john.doe@company.com"
+                    disabled={loading}
+                    required
+                    className={validationErrors.email ? 'border-red-500' : formData.email && !validationErrors.email ? 'border-green-500' : ''}
+                  />
+                  {formData.email && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {validationErrors.email ? (
+                        <XCircle className="h-4 w-4 text-red-500" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                {validationErrors.email && (
+                  <p className="text-xs text-red-500">{validationErrors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
@@ -268,13 +309,30 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
             {/* Status & Lead Score */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="status">Status</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">
+                          <strong>Lead:</strong> New prospect<br/>
+                          <strong>Qualified:</strong> Vetted & interested<br/>
+                          <strong>Customer:</strong> Active client<br/>
+                          <strong>Inactive:</strong> No longer engaged
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Select
                   value={formData.status}
                   onValueChange={(value) => setFormData({ ...formData, status: value as ContactStatus })}
                   disabled={loading}
                 >
-                  <SelectTrigger id="status">
+                  <SelectTrigger id="status" className="h-11">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -286,22 +344,49 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="leadScore">
-                  Lead Score (0-100)
-                </Label>
-                <Input
-                  id="leadScore"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.leadScore}
-                  onChange={(e) => setFormData({ ...formData, leadScore: e.target.value })}
-                  placeholder="50"
-                  disabled={loading}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Higher score = hotter lead
-                </p>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="leadScore">Lead Score (0-100)</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">
+                          Score leads based on engagement and fit:<br/>
+                          <strong>0-30:</strong> Cold lead<br/>
+                          <strong>31-60:</strong> Warm lead<br/>
+                          <strong>61-100:</strong> Hot lead (high priority)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="leadScore"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.leadScore}
+                    onChange={(e) => handleLeadScoreChange(e.target.value)}
+                    placeholder="50"
+                    disabled={loading}
+                    className={validationErrors.leadScore ? 'border-red-500' : ''}
+                  />
+                  {validationErrors.leadScore && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    </div>
+                  )}
+                </div>
+                {validationErrors.leadScore ? (
+                  <p className="text-xs text-red-500">{validationErrors.leadScore}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Higher score = hotter lead
+                  </p>
+                )}
               </div>
             </div>
 
@@ -348,7 +433,8 @@ export function ContactDialog({ open, onOpenChange, contact, onSuccess }: Contac
               {contact ? 'Update Contact' : 'Create Contact'}
             </Button>
           </DialogFooter>
-        </form>
+          </form>
+        </TooltipProvider>
       </DialogContent>
     </Dialog>
   )
