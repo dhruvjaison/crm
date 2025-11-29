@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { IntegrationTestPanel } from '@/components/integrations/integration-test-panel'
 import { 
   Phone, 
   Mail, 
@@ -256,6 +257,9 @@ export default async function IntegrationsPage() {
           )
         })}
       </div>
+
+      {/* Integration Testing Panel */}
+      <IntegrationTestPanel userId={session.user.id} tenantId={session.user.tenantId} />
 
       {/* Support & Contact */}
       <Card>
