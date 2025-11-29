@@ -248,7 +248,10 @@ export function calculateCostSavings(callCount: number, avgDurationSeconds: numb
   const traditionalTotalCost = callCount * avgDurationMinutes * traditionalCostPerMinute
   
     const savings = traditionalTotalCost - modernTotalCost
-    const savingsPercentage = (savings / traditionalTotalCost) * 100
+    // Handle division by zero - if no calls, show 0% instead of NaN
+    const savingsPercentage = traditionalTotalCost > 0 
+      ? (savings / traditionalTotalCost) * 100 
+      : 0
 
     return {
       retellTotalCost: modernTotalCost, // Keep field name for compatibility

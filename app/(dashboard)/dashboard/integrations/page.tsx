@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { IntegrationTestPanel } from '@/components/integrations/integration-test-panel'
+import { IntegrationActions } from '@/components/integrations/integration-actions'
 import { 
   Phone, 
   Mail, 
@@ -190,20 +191,7 @@ export default async function IntegrationsPage() {
             Your AI voice agents and workflow automation are configured, optimized, and maintained for you. 
             Data flows automatically into your CRM with no setup required.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Sync Now
-            </Button>
-            <Button variant="outline" size="sm">
-              <Phone className="h-4 w-4 mr-2" />
-              View Call Logs
-            </Button>
-            <Button variant="outline" size="sm">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Contact Support
-            </Button>
-          </div>
+          <IntegrationActions />
         </CardContent>
       </Card>
 
