@@ -24,10 +24,10 @@ import {
 import { toast } from 'sonner'
 
 interface TestResult {
-  status: string
+  status: 'success' | 'error'
   message: string
   error?: string
-  data?: unknown
+  data?: string
 }
 
 export function IntegrationTestPanel() {
@@ -68,10 +68,11 @@ export function IntegrationTestPanel() {
       })
 
       if (response.ok) {
+        const data = await response.json()
         setTestResults({
           status: 'success',
           message: 'Webhook test successful!',
-          data: await response.json(),
+          data: JSON.stringify(data, null, 2),
         })
         toast.success('Webhook test passed!')
       } else {
@@ -408,11 +409,9 @@ export function IntegrationTestPanel() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm mb-2">{testResults.message}</p>
-                  {testResults.data !== undefined && (
+                  {testResults.data && (
                     <pre className="text-xs bg-black/5 dark:bg-white/5 p-2 rounded overflow-x-auto">
-                      {typeof testResults.data === 'object' 
-                        ? JSON.stringify(testResults.data, null, 2)
-                        : String(testResults.data)}
+                      {testResults.data}
                     </pre>
                   )}
                   {testResults.error && (
