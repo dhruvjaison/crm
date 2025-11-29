@@ -408,7 +408,7 @@ export function IntegrationTestPanel() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm mb-2">{testResults.message}</p>
-                  {testResults.data && (
+                  {testResults.data !== undefined && (
                     <pre className="text-xs bg-black/5 dark:bg-white/5 p-2 rounded overflow-x-auto">
                       {typeof testResults.data === 'object' 
                         ? JSON.stringify(testResults.data, null, 2)
