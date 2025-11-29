@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { InlineContactForm } from './inline-contact-form'
 import { toast } from 'sonner'
-import { Loader2, Search, HelpCircle, DollarSign } from 'lucide-react'
+import { Loader2, Search, HelpCircle, DollarSign, UserPlus } from 'lucide-react'
 
 interface Contact {
   id: string
@@ -49,6 +50,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
   const [contacts, setContacts] = useState<Contact[]>([])
   const [stages, setStages] = useState<PipelineStage[]>([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [showInlineForm, setShowInlineForm] = useState(false)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -189,6 +191,20 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
     return fullName.includes(search) || email.includes(search)
   })
 
+  const handleContactCreated = async (contactId: string, contactName: string) => {
+    // Add the new contact to the list
+    const newContact: Contact = {
+      id: contactId,
+      firstName: contactName.split(' ')[0],
+      lastName: contactName.split(' ').slice(1).join(' '),
+      email: '', // Not needed for display
+    }
+    setContacts([...contacts, newContact])
+    setFormData({ ...formData, contactId })
+    setShowInlineForm(false)
+    toast.success(`Contact "${contactName}" created and selected`)
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -282,58 +298,83 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
 
               {/* Contact Selection */}
               <div className="space-y-2">
-                <Label htmlFor="contactId">
-                  Contact <span className="text-red-500">*</span>
-                </Label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Which contact is this deal for? Search by name or email below.
-                </p>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Type to search contacts..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 mb-2"
-                    disabled={loading}
-                  />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="contactId">
+                    Contact <span className="text-red-500">*</span>
+                  </Label>
+                  {!showInlineForm && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowInlineForm(true)}
+                      disabled={loading}
+                      className="h-8 text-xs"
+                    >
+                      <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                      Create New
+                    </Button>
+                  )}
                 </div>
-                <Select
-                  value={formData.contactId}
-                  onValueChange={(value) => setFormData({ ...formData, contactId: value })}
-                  disabled={loading}
-                >
-                  <SelectTrigger id="contactId" className="h-11">
-                    <SelectValue placeholder="Select a contact from the list" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredContacts.length === 0 ? (
-                      <div className="p-4 text-sm text-center">
-                        <p className="text-muted-foreground mb-2">No contacts found</p>
-                        <p className="text-xs text-muted-foreground">
-                          {searchTerm ? 'Try a different search term' : 'Create a contact first'}
-                        </p>
-                      </div>
-                    ) : (
-                      filteredContacts.map((contact) => (
-                        <SelectItem key={contact.id} value={contact.id} className="py-3 cursor-pointer">
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {contact.firstName} {contact.lastName}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {contact.email}
-                            </span>
+
+                {showInlineForm ? (
+                  <InlineContactForm
+                    onContactCreated={handleContactCreated}
+                    onCancel={() => setShowInlineForm(false)}
+                  />
+                ) : (
+                  <>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Which contact is this deal for? Search by name or email below.
+                    </p>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Type to search contacts..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9 mb-2"
+                        disabled={loading}
+                      />
+                    </div>
+                    <Select
+                      value={formData.contactId}
+                      onValueChange={(value) => setFormData({ ...formData, contactId: value })}
+                      disabled={loading}
+                    >
+                      <SelectTrigger id="contactId" className="h-11">
+                        <SelectValue placeholder="Select a contact from the list" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredContacts.length === 0 ? (
+                          <div className="p-4 text-sm text-center">
+                            <p className="text-muted-foreground mb-2">No contacts found</p>
+                            <p className="text-xs text-muted-foreground">
+                              {searchTerm ? 'Try a different search term' : 'Click "Create New" above'}
+                            </p>
                           </div>
-                        </SelectItem>
-                      ))
+                        ) : (
+                          filteredContacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id} className="py-3 cursor-pointer">
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {contact.firstName} {contact.lastName}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {contact.email}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {!formData.contactId && (
+                      <p className="text-xs text-amber-600">
+                        ⚠️ You must select a contact to create a deal
+                      </p>
                     )}
-                  </SelectContent>
-                </Select>
-                {!formData.contactId && (
-                  <p className="text-xs text-amber-600">
-                    ⚠️ You must select a contact to create a deal
-                  </p>
+                  </>
                 )}
               </div>
 
