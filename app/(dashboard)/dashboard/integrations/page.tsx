@@ -247,7 +247,7 @@ export default async function IntegrationsPage() {
       </div>
 
       {/* Integration Testing Panel */}
-      <IntegrationTestPanel userId={session.user.id} tenantId={session.user.tenantId} />
+      <IntegrationTestPanel />
 
       {/* Support & Contact */}
       <Card>
