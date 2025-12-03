@@ -7,6 +7,7 @@ import { prisma } from './lib/db'
 export const authConfig = {
   pages: {
     signIn: '/login',
+    signOut: '/',
   },
   callbacks: {
     async signIn({ user, account, profile }) {
